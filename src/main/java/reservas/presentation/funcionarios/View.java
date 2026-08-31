@@ -107,4 +107,108 @@ public class View implements PropertyChangeListener {
                 )
         );
     }
+    // =========================================================
+// CONTROLLER Y LISTENERS
+// =========================================================
+
+    public void setController(Controller controller) {
+
+        // Botón Buscar
+        buscarBtn.addActionListener(
+                e -> controller.buscar()
+        );
+
+        // Botón Guardar
+        guardarBtn.addActionListener(
+                e -> controller.guardar()
+        );
+
+        // Botón Borrar
+        borrarBtn.addActionListener(
+                e -> controller.borrar()
+        );
+
+        // Botón Limpiar
+        limpiarBtn.addActionListener(
+                e -> controller.limpiar()
+        );
+
+        // Selección de una fila de la tabla
+        funcionariosTable
+                .getSelectionModel()
+                .addListSelectionListener(e -> {
+
+                    if (!e.getValueIsAdjusting()) {
+
+                        int fila =
+                                funcionariosTable.getSelectedRow();
+
+                        controller.seleccionar(fila);
+                    }
+                });
+    }
+
+
+// =========================================================
+// CAMPOS DE BÚSQUEDA
+// =========================================================
+
+    public String getIdBusqueda() {
+        return idBusquedaFld.getText().trim();
+    }
+
+    public String getNombreBusqueda() {
+        return nombreBusquedaFld.getText().trim();
+    }
+
+
+// =========================================================
+// CAMPOS DEL FUNCIONARIO
+// =========================================================
+
+    public String getIdFuncionario() {
+        return idFld.getText().trim();
+    }
+
+    public String getNombreFuncionario() {
+        return nombreFld.getText().trim();
+    }
+
+    public String getTelefonoFuncionario() {
+        return telefonoFld.getText().trim();
+    }
+
+
+// =========================================================
+// MENSAJES
+// =========================================================
+
+    public void mostrarMensaje(String mensaje) {
+
+        JOptionPane.showMessageDialog(
+                panel,
+                mensaje,
+                "Sistema de Reservas",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    public void mostrarError(String mensaje) {
+
+        JOptionPane.showMessageDialog(
+                panel,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+
+// =========================================================
+// TABLA
+// =========================================================
+
+    public void limpiarSeleccionTabla() {
+        funcionariosTable.clearSelection();
+    }
 }
