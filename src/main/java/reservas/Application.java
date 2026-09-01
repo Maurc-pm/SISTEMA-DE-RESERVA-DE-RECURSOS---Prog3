@@ -1,8 +1,8 @@
 package reservas;
 
-import reservas.presentation.funcionarios.Controller;
-import reservas.presentation.funcionarios.Model;
-import reservas.presentation.funcionarios.View;
+import reservas.presentation.categorias.Controller;
+import reservas.presentation.categorias.Model;
+import reservas.presentation.categorias.View;
 
 import javax.swing.*;
 
@@ -18,7 +18,7 @@ public class Application {
             new Controller(view, model);
 
             JFrame frame = new JFrame(
-                    "Sistema de Reservas - Funcionarios"
+                    "Sistema de Reservas - Categorías"
             );
 
             frame.setContentPane(
