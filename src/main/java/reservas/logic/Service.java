@@ -1,6 +1,7 @@
 package reservas.logic;
 
 import reservas.data.Data;
+import reservas.data.XmlStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,34 @@ public class Service {
     private final Data data;
 
     private Service() {
-        data = new Data();
-        cargarDatosIniciales();
-    }
 
+        try {
+
+            Data dataCargada = XmlStorage.cargar();
+
+            if (dataCargada != null) {
+
+                // Ya existe reservas.xml
+                data = dataCargada;
+
+            } else {
+
+                // Primera ejecución
+                data = new Data();
+
+                cargarDatosIniciales();
+
+                XmlStorage.guardar(data);
+            }
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Error al cargar los datos XML",
+                    e
+            );
+        }
+    }
     public static Service instance() {
         return INSTANCE;
     }
@@ -73,6 +98,8 @@ public class Service {
         }
 
         usuario.setClave(claveNueva.trim());
+
+        guardarCambios();
     }
 
     // =========================================================
@@ -110,6 +137,8 @@ public class Service {
         funcionario.setRol(Usuario.FUNCIONARIO);
 
         data.getUsuarios().add(funcionario);
+
+        guardarCambios();
     }
 
     public Funcionario buscarFuncionarioPorId(
@@ -213,6 +242,8 @@ public class Service {
         existente.setTelefono(
                 funcionario.getTelefono().trim()
         );
+
+        guardarCambios();
     }
 
     public void eliminarFuncionario(
@@ -231,6 +262,8 @@ public class Service {
                     "No fue posible eliminar el funcionario"
             );
         }
+
+        guardarCambios();
     }
 
     // =========================================================
@@ -252,6 +285,8 @@ public class Service {
         );
 
         data.getCategorias().add(categoria);
+
+        guardarCambios();
     }
 
     public Categoria buscarCategoriaPorId(
@@ -332,6 +367,8 @@ public class Service {
                         .getDescripcion()
                         .trim()
         );
+
+        guardarCambios();
     }
 
     public void eliminarCategoria(
@@ -360,6 +397,8 @@ public class Service {
 
         data.getCategorias()
                 .remove(categoria);
+
+        guardarCambios();
     }
 
     // =========================================================
@@ -400,6 +439,8 @@ public class Service {
         );
 
         data.getRecursos().add(recurso);
+
+        guardarCambios();
     }
 
     public Recurso buscarRecursoPorId(
@@ -484,6 +525,8 @@ public class Service {
                         .getDescripcion()
                         .trim()
         );
+
+        guardarCambios();
     }
 
     public void eliminarRecurso(
@@ -498,11 +541,17 @@ public class Service {
          * considerando reservas activas.
          */
         data.getRecursos().remove(recurso);
+
+        guardarCambios();
     }
 
     // =========================================================
     // MÉTODOS AUXILIARES
     // =========================================================
+
+    private void guardarCambios() throws Exception {
+        XmlStorage.guardar(data);
+    }
 
     private boolean existeUsuario(
             String id
@@ -691,21 +740,6 @@ public class Service {
         data.getUsuarios()
                 .add(administrador);
 
-        Funcionario funcionario =
-                new Funcionario(
-                        "F0001",
-                        "F0001",
-                        "Funcionario Prueba",
-                        "88888888"
-                );
-
-        data.getUsuarios().add(funcionario);
-
-        Categoria categoria = new Categoria();
-        categoria.setDescripcion("Sala para 10 personas");
-        categoria.setId("CAT-000001");
-
-        data.getCategorias().add(categoria);
     }
 
     // =========================================================
@@ -825,6 +859,8 @@ public class Service {
         reserva.setRecursos(recursosAsignados);
         reserva.setEstado(Reserva.ACTIVA);
         data.getReservas().add(reserva);
+
+        guardarCambios();
     }
 
     private String generarIdReserva() {
@@ -867,5 +903,7 @@ public class Service {
         }
 
         reserva.setEstado(Reserva.CANCELADA);
+
+        guardarCambios();
     }
 }
