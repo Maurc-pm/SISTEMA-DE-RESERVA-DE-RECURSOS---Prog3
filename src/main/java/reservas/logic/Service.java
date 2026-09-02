@@ -4,6 +4,8 @@ import reservas.data.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Service {
 
@@ -688,5 +690,182 @@ public class Service {
 
         data.getUsuarios()
                 .add(administrador);
+
+        Funcionario funcionario =
+                new Funcionario(
+                        "F0001",
+                        "F0001",
+                        "Funcionario Prueba",
+                        "88888888"
+                );
+
+        data.getUsuarios().add(funcionario);
+
+        Categoria categoria = new Categoria();
+        categoria.setDescripcion("Sala para 10 personas");
+        categoria.setId("CAT-000001");
+
+        data.getCategorias().add(categoria);
+    }
+
+    // =========================================================
+// RESERVAS
+// =========================================================
+
+    public List<Reserva> listarReservas() {
+        return new ArrayList<>(data.getReservas());
+    }
+
+    public List<Reserva> listarReservasFuncionario(Funcionario funcionario) {
+        List<Reserva> resultado = new ArrayList<>();
+
+        for (Reserva reserva : data.getReservas()) {
+            if (reserva.getFuncionario()
+                    .equals(funcionario)) {
+
+                resultado.add(reserva);
+            }
+        }
+        return resultado;
+    }
+
+    private boolean chocanHorarios(LocalTime inicio1, LocalTime fin1, LocalTime inicio2, LocalTime fin2) {
+        return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
+    }
+
+    private boolean recursoDisponible(Recurso recurso, LocalDate fecha, LocalTime inicio, LocalTime fin) {
+        for (Reserva reserva : data.getReservas()) {
+            if (!reserva.estaActiva()) {
+                continue;
+            }
+
+            if (!fecha.equals(reserva.getFecha())) {
+                continue;
+            }
+
+            boolean chocan = chocanHorarios(inicio, fin, reserva.getHoraInicio(), reserva.getHoraFin());
+
+            if (!chocan) {
+                continue;
+            }
+
+            if (reserva.getRecursos().contains(recurso)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Recurso primerRecursoDisponible(Categoria categoria, LocalDate fecha, LocalTime inicio, LocalTime fin) {
+        for (Recurso recurso : data.getRecursos()) {
+            if (recurso.getCategoria().equals(categoria) && recursoDisponible(recurso, fecha, inicio, fin)) {
+                return recurso;
+            }
+        }
+        return null;
+    }
+
+    public void crearReserva(
+            Reserva reserva,
+            List<Categoria> categorias
+    ) throws Exception {
+        if (reserva == null) {
+            throw new Exception("La reserva es requerida");
+        }
+
+        if (reserva.getFuncionario() == null) {
+            throw new Exception("El funcionario es requerido");
+        }
+
+        if (reserva.getActividad() == null || reserva.getActividad().trim().isEmpty()) {
+            throw new Exception("La actividad es requerida");
+        }
+
+        if (reserva.getFecha() == null) {
+            throw new Exception("La fecha es requerida");
+        }
+
+        if (reserva.getHoraInicio() == null || reserva.getHoraFin() == null) {
+            throw new Exception("Las horas son requeridas");
+        }
+
+        if (!reserva.getHoraInicio().isBefore(reserva.getHoraFin())) {
+            throw new Exception("La hora de inicio debe ser anterior a la hora final");
+        }
+
+        if (categorias == null || categorias.isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una categoría");
+        }
+
+        List<Recurso> recursosAsignados = new ArrayList<>();
+        List<Categoria> noDisponibles = new ArrayList<>();
+
+        for (Categoria categoria : categorias) {
+            Recurso recurso = primerRecursoDisponible(categoria, reserva.getFecha(), reserva.getHoraInicio(), reserva.getHoraFin());
+
+            if (recurso == null) {
+                noDisponibles.add(categoria);
+
+            } else {
+                recursosAsignados.add(recurso);
+            }
+        }
+
+        if (!noDisponibles.isEmpty()) {
+            StringBuilder mensaje = new StringBuilder("No hay recursos disponibles para:\n");
+
+            for (Categoria categoria : noDisponibles) {
+                mensaje.append("- ").append(categoria.getDescripcion()).append("\n");
+            }
+
+            throw new Exception(mensaje.toString());
+        }
+
+        reserva.setId(generarIdReserva());
+        reserva.setRecursos(recursosAsignados);
+        reserva.setEstado(Reserva.ACTIVA);
+        data.getReservas().add(reserva);
+    }
+
+    private String generarIdReserva() {
+        int mayor = 0;
+
+        for (Reserva reserva : data.getReservas()) {
+            String id = reserva.getId();
+
+            if (id != null && id.startsWith("RES-")) {
+
+                try {
+                    int numero = Integer.parseInt(id.substring(4));
+
+                    if (numero > mayor) {
+                        mayor = numero;
+                    }
+
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return String.format("RES-%06d", mayor + 1);
+    }
+
+    public void cancelarReserva(Reserva reserva) throws Exception {
+        if (reserva == null) {
+            throw new Exception("Reserva requerida");
+        }
+
+        if (!reserva.estaActiva()) {
+            throw new Exception("La reserva ya está cancelada");
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        boolean esFutura = reserva.getFecha().isAfter(hoy) || (reserva.getFecha().equals(hoy) && reserva.getHoraInicio().isAfter(ahora));
+
+        if (!esFutura) {throw new Exception("Solo se pueden cancelar reservas futuras");
+        }
+
+        reserva.setEstado(Reserva.CANCELADA);
     }
 }
