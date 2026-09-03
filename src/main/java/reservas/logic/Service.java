@@ -74,6 +74,23 @@ public class Service {
 
         throw new Exception("ID o clave incorrectos");
     }
+    //Agregue esta para que tambien funcione con admins
+    public Usuario buscarUsuarioPorId(String id) throws Exception {
+
+        if (id == null || id.trim().isEmpty()) {
+            throw new Exception("El ID es requerido");
+        }
+
+        String idBusqueda = id.trim();
+
+        for (Usuario usuario : data.getUsuarios()) {
+            if (usuario.getId().equals(idBusqueda)) {
+                return usuario;
+            }
+        }
+
+        throw new Exception("Usuario no encontrado");
+    }
 
     public void cambiarClave(
             Usuario usuario,

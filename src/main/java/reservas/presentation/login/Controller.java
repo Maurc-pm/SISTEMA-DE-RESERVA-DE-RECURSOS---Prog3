@@ -48,4 +48,19 @@ public class Controller {
 
         view.dispose();
     }
+
+    public void cambiarClave() {
+
+        reservas.presentation.cambiarclave.View viewCambiar =
+                new reservas.presentation.cambiarclave.View();
+
+        reservas.presentation.cambiarclave.Model modelCambiar =
+                new reservas.presentation.cambiarclave.Model();
+
+        new reservas.presentation.cambiarclave.Controller(viewCambiar, modelCambiar);
+
+        viewCambiar.pack();
+        viewCambiar.setLocationRelativeTo(view);
+        viewCambiar.setVisible(true);
+    }
 }

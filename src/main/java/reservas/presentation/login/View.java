@@ -13,6 +13,7 @@ public class View extends JDialog {
     private JTextField idFld;
     private JPasswordField claveFld;
     private JLabel titulo;
+    private JButton buttonCambiarClave;
     private Model model;
     private Controller controller;
 
@@ -30,6 +31,12 @@ public class View extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
+            }
+        });
+
+        buttonCambiarClave.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onCambiarClave();
             }
         });
 
@@ -80,6 +87,10 @@ public class View extends JDialog {
                 "Error",
                 JOptionPane.ERROR_MESSAGE
         );
+    }
+
+    private void onCambiarClave() {
+        controller.cambiarClave();
     }
 
     private void createUIComponents() {
