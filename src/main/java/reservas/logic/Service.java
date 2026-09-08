@@ -1,5 +1,11 @@
 package reservas.logic;
 
+import reservas.ai.ReservaExtraccion;
+import reservas.ai.ReservaExtractorService;
+
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.service.AiServices;
+
 import reservas.data.Data;
 import reservas.data.XmlStorage;
 
@@ -13,6 +19,7 @@ public class Service {
     private static final Service INSTANCE = new Service();
 
     private final Data data;
+    private ReservaExtractorService reservaExtractorService;
 
     private Service() {
 
@@ -565,6 +572,45 @@ public class Service {
     // =========================================================
     // MÉTODOS AUXILIARES
     // =========================================================
+
+    public ReservaExtraccion extraerReservaConIA(String frase) throws Exception {
+
+        if (frase == null || frase.trim().isEmpty()) {
+            throw new Exception("Debe escribir una descripción de la reserva");
+        }
+
+        String categoriasDisponibles = data.getCategorias()
+                .stream()
+                .map(Categoria::getDescripcion)
+                .toList()
+                .toString();
+
+        return obtenerReservaExtractorService().extraer(
+                frase.trim(),
+                categoriasDisponibles,
+                LocalDate.now().toString()
+        );
+    }
+
+    private ReservaExtractorService obtenerReservaExtractorService() {
+
+        if (reservaExtractorService == null) {
+
+            OpenAiChatModel modelo = OpenAiChatModel.builder()
+                    .baseUrl("http://langchain4j.dev/demo/openai/v1")
+                    .apiKey("demo")
+                    .modelName("gpt-4o-mini")
+                    .build();
+
+            reservaExtractorService =
+                    AiServices.create(
+                            ReservaExtractorService.class,
+                            modelo
+                    );
+        }
+
+        return reservaExtractorService;
+    }
 
     private void guardarCambios() throws Exception {
         XmlStorage.guardar(data);
