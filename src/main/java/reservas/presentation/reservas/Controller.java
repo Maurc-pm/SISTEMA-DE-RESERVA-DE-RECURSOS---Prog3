@@ -59,6 +59,48 @@ public class Controller {
     // RESERVAR
     // =========================================================
 
+    public void interpretarConIA() {
+        try {
+
+            var resultado =
+                    Service.instance().extraerReservaConIA(
+                            view.getTextoIA()
+                    );
+
+            String fechaFormateada =
+                    LocalDate.parse(resultado.getFecha())
+                            .format(formatoFecha);
+
+            view.llenarFormularioIA(
+                    resultado.getActividad(),
+                    fechaFormateada,
+                    resultado.getHoraInicio(),
+                    resultado.getHoraFinal()
+            );
+            List<Categoria> categoriasDetectadas = new ArrayList<>();
+
+            if (resultado.getCategoriasRecurso() != null) {
+
+                for (String nombre : resultado.getCategoriasRecurso()) {
+
+                    for (Categoria categoria : model.getCategorias()) {
+
+                        if (categoria.getDescripcion()
+                                .equalsIgnoreCase(nombre.trim())) {
+
+                            categoriasDetectadas.add(categoria);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            model.setCategoriasSeleccionadas(categoriasDetectadas);
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
+    }
+
     public void reservar() {
         try {
             Funcionario funcionario = (Funcionario) Sesion.getUsuario();

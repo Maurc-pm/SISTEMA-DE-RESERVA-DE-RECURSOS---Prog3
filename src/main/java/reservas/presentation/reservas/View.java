@@ -26,6 +26,8 @@ public class View implements PropertyChangeListener {
     private JLabel misReservas;
     private JTable reservasTable;
     private JPanel panel;
+    private JTextField iaFld;
+    private JButton interpretarIAButton;
     private Model model;
 
     public View() {
@@ -145,6 +147,7 @@ public class View implements PropertyChangeListener {
     }
 
     public void setController(Controller controller) {
+        interpretarIAButton.addActionListener(e -> controller.interpretarConIA());
         agregarButton.addActionListener(e -> controller.agregarCategoria());
         reservarButton.addActionListener(e -> controller.reservar());
         limpiarButton.addActionListener(e -> controller.limpiar());
@@ -171,6 +174,22 @@ public class View implements PropertyChangeListener {
 
     public String getHoraFinal() {
         return horaFinalFld.getText().trim();
+    }
+
+    public String getTextoIA() {
+        return iaFld.getText().trim();
+    }
+
+    public void llenarFormularioIA(
+            String actividad,
+            String fecha,
+            String horaInicio,
+            String horaFinal
+    ) {
+        actividadFld.setText(actividad != null ? actividad : "");
+        fechaFld.setText(fecha != null ? fecha : "");
+        horaInicioFld.setText(horaInicio != null ? horaInicio : "");
+        horaFinalFld.setText(horaFinal != null ? horaFinal : "");
     }
 
     public void mostrarMensaje(String mensaje) {
