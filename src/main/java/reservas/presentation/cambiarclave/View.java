@@ -84,7 +84,7 @@ public class View extends JDialog {
     }
 
     private void onCancelar() {
-        dispose();
+        controller.cancelar();
     }
 
     public void mostrarError(String mensaje) {
@@ -103,4 +103,3 @@ public class View extends JDialog {
         dispose();
     }
 }
-

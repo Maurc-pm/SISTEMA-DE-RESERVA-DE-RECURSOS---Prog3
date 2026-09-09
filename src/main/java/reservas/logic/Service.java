@@ -102,7 +102,8 @@ public class Service {
     public void cambiarClave(
             Usuario usuario,
             String claveActual,
-            String claveNueva
+            String claveNueva,
+            String confirmarClave
     ) throws Exception {
 
         if (usuario == null) {
@@ -119,6 +120,12 @@ public class Service {
 
         if (!usuario.getClave().equals(claveActual)) {
             throw new Exception("La clave actual es incorrecta");
+        }
+
+        if (!claveNueva.equals(confirmarClave)) {
+            throw new Exception(
+                    "La clave nueva y la confirmación no coinciden"
+            );
         }
 
         usuario.setClave(claveNueva.trim());

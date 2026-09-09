@@ -25,17 +25,16 @@ public class Controller {
             String claveNueva = view.getClaveNueva();
             String confirmar = view.getConfirmarClave();
 
-            if (!claveNueva.equals(confirmar)) {
-                throw new Exception(
-                        "La clave nueva y la confirmación no coinciden"
-                );
-            }
-
             Usuario usuario =
                     Service.instance().buscarUsuarioPorId(id);
 
             Service.instance()
-                    .cambiarClave(usuario, claveActual, claveNueva);
+                    .cambiarClave(
+                            usuario,
+                            claveActual,
+                            claveNueva,
+                            confirmar
+                    );
 
             view.mostrarMensaje(
                     "Contraseña cambiada correctamente. "
@@ -47,5 +46,9 @@ public class Controller {
         } catch (Exception ex) {
             view.mostrarError(ex.getMessage());
         }
+    }
+
+    public void cancelar() {
+        view.cerrar();
     }
 }

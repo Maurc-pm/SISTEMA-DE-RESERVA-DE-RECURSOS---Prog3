@@ -3,12 +3,12 @@
   <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="543" height="400"/>
+      <xy x="20" y="20" width="420" height="260"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="b9fcb" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="10" vgap="10">
+      <grid id="b9fcb" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="10" vgap="12">
         <margin top="5" left="10" bottom="10" right="10"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -18,7 +18,7 @@
         <children>
           <component id="b6851" class="javax.swing.JLabel" binding="ID">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="3" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="ID:"/>
@@ -26,7 +26,7 @@
           </component>
           <component id="2c4a3" class="javax.swing.JLabel" binding="claveActualLabel">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="3" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Clave actual:"/>
@@ -34,7 +34,7 @@
           </component>
           <component id="50aa1" class="javax.swing.JLabel" binding="claveNuevaLabel">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="3" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Clave nueva:"/>
@@ -42,16 +42,16 @@
           </component>
           <component id="904ca" class="javax.swing.JLabel" binding="confirmarContraseñaLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="3" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Confirmar nueva clave:"/>
+              <text value="Confirmar clave:"/>
             </properties>
           </component>
           <component id="ac965" class="javax.swing.JTextField" binding="idFld">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="180" height="-1"/>
               </grid>
             </constraints>
             <properties/>
@@ -59,7 +59,7 @@
           <component id="1385a" class="javax.swing.JPasswordField" binding="claveActualFld">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="180" height="-1"/>
               </grid>
             </constraints>
             <properties/>
@@ -67,7 +67,7 @@
           <component id="9f27c" class="javax.swing.JPasswordField" binding="claveNuevaFld">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="180" height="-1"/>
               </grid>
             </constraints>
             <properties/>
@@ -75,15 +75,15 @@
           <component id="a33a6" class="javax.swing.JPasswordField" binding="confirmarFld">
             <constraints>
               <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="180" height="-1"/>
               </grid>
             </constraints>
             <properties/>
           </component>
         </children>
       </grid>
-      <grid id="86462" binding="ButtonPannel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="10" left="10" bottom="10" right="10"/>
+      <grid id="86462" binding="ButtonPannel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="true" same-size-vertically="false" hgap="10" vgap="-1">
+        <margin top="15" left="10" bottom="10" right="10"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -109,7 +109,7 @@
         </children>
       </grid>
       <grid id="8c9ad" binding="TituloJPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="10" left="10" bottom="5" right="10"/>
+        <margin top="15" left="10" bottom="10" right="10"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -121,7 +121,8 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <font size="14" style="1"/>
+              <font size="16" style="1"/>
+              <horizontalAlignment value="0"/>
               <text value="Cambiar Contraseña"/>
             </properties>
           </component>

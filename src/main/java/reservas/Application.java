@@ -141,6 +141,47 @@ public class Application {
             );
         }
 
+        // =========================
+        // CALENDARIZACIÓN DE RECURSOS
+        // DISPONIBLE PARA AMBOS ROLES
+        // =========================
+
+        reservas.presentation.calendarizacion.View calendarizacionView =
+                new reservas.presentation.calendarizacion.View();
+
+        reservas.presentation.calendarizacion.Model calendarizacionModel =
+                new reservas.presentation.calendarizacion.Model();
+
+        new reservas.presentation.calendarizacion.Controller(
+                calendarizacionView,
+                calendarizacionModel
+        );
+
+        tabs.addTab(
+                "Calendarización",
+                calendarizacionView.getPanel()
+        );
+        // =========================
+        // CALENDARIZACIÓN DE ACTIVIDADES
+        // DISPONIBLE PARA AMBOS ROLES
+        // =========================
+
+        reservas.presentation.actividades.View actividadesView =
+                new reservas.presentation.actividades.View();
+
+        reservas.presentation.actividades.Model actividadesModel =
+                new reservas.presentation.actividades.Model();
+
+        new reservas.presentation.actividades.Controller(
+                actividadesView,
+                actividadesModel
+        );
+
+        tabs.addTab(
+                "Actividades",
+                actividadesView.getPanel()
+        );
+
 
         // =========================
         // ESTADÍSTICAS
