@@ -22,6 +22,16 @@ public class Controller {
         cargarCategorias();
         cargarRecursos();
         limpiar();
+
+        view.getPanel().addHierarchyListener(e -> {
+
+            if ((e.getChangeFlags()
+                    & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0
+                    && view.getPanel().isShowing()) {
+
+                cargarCategorias();
+            }
+        });
     }
 
     // =========================================================
