@@ -2,7 +2,7 @@ package reservas.presentation.calendarizacion;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import reservas.logic.Categoria;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

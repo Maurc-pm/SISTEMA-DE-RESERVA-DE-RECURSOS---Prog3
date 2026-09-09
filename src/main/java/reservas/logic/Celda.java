@@ -1,4 +1,4 @@
-package reservas.presentation;
+package reservas.logic;
 
 import java.util.ArrayList;
 import java.util.List;

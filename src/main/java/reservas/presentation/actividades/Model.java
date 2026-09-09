@@ -1,7 +1,7 @@
 package reservas.presentation.actividades;
 
 import reservas.presentation.AbstractModel;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

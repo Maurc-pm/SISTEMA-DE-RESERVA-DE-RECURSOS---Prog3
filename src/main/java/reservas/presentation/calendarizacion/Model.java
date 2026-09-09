@@ -3,7 +3,7 @@ package reservas.presentation.calendarizacion;
 import reservas.logic.Categoria;
 import reservas.logic.Recurso;
 import reservas.presentation.AbstractModel;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import java.util.ArrayList;
 import java.util.List;

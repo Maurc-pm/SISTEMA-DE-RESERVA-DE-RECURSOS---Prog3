@@ -4,7 +4,7 @@ import reservas.logic.Categoria;
 import reservas.logic.Recurso;
 import reservas.logic.Reserva;
 import reservas.logic.Service;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

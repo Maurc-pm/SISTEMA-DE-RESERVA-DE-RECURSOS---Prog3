@@ -1,7 +1,7 @@
 package reservas.presentation.actividades;
 
 import com.github.lgooddatepicker.components.DatePicker;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

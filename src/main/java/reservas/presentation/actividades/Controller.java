@@ -2,7 +2,7 @@ package reservas.presentation.actividades;
 
 import reservas.logic.Reserva;
 import reservas.logic.Service;
-import reservas.presentation.Celda;
+import reservas.logic.Celda;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
