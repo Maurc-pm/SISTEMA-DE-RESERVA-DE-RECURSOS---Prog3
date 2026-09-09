@@ -138,6 +138,31 @@ public class View {
     }
     public void mostrarGraficoActividades(Map<String, Integer> datos) {
 
+        boolean hayActividades = datos.values()
+                .stream()
+                .anyMatch(cantidad -> cantidad != null && cantidad > 0);
+
+        if (!hayActividades) {
+
+            graficoRecursosPanel.removeAll();
+            graficoRecursosPanel.setLayout(new BorderLayout());
+
+            JLabel mensaje = new JLabel(
+                    "No hay actividades programadas en el período seleccionado",
+                    SwingConstants.CENTER
+            );
+
+            graficoRecursosPanel.add(
+                    mensaje,
+                    BorderLayout.CENTER
+            );
+
+            graficoRecursosPanel.revalidate();
+            graficoRecursosPanel.repaint();
+
+            return;
+        }
+
         DefaultCategoryDataset dataset =
                 new DefaultCategoryDataset();
 
@@ -160,6 +185,7 @@ public class View {
                 new ChartPanel(grafico);
 
         graficoRecursosPanel.removeAll();
+
         graficoRecursosPanel.add(
                 chartPanel,
                 BorderLayout.CENTER
