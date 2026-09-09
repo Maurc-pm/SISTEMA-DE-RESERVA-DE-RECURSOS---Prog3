@@ -1,15 +1,18 @@
 package reservas.presentation.reservas;
 
 import javax.swing.*;
+
+import com.github.lgooddatepicker.components.DatePicker;
 import reservas.logic.Categoria;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import com.github.lgooddatepicker.components.DatePicker;
+import java.time.LocalDate;
 
 public class View implements PropertyChangeListener {
     private JLabel titulo;
     private JLabel actividad;
     private JTextField horaInicioFld;
-    private JTextField fechaFld;
     private JTextField actividadFld;
     private JTextField horaFinalFld;
     private JComboBox categoriaComboBox;
@@ -28,12 +31,16 @@ public class View implements PropertyChangeListener {
     private JPanel panel;
     private JTextField iaFld;
     private JButton interpretarIAButton;
+    private DatePicker fechaPicker;
     private Model model;
 
     public View() {
+
         reservasTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
+
+        fechaPicker.setDate(LocalDate.now());
     }
 
     public JPanel getPanel() {
@@ -115,7 +122,7 @@ public class View implements PropertyChangeListener {
     public void limpiarFormulario() {
 
         actividadFld.setText("");
-        fechaFld.setText("");
+        fechaPicker.clear();
         horaInicioFld.setText("");
         horaFinalFld.setText("");
 
@@ -164,8 +171,8 @@ public class View implements PropertyChangeListener {
         return actividadFld.getText().trim();
     }
 
-    public String getFecha() {
-        return fechaFld.getText().trim();
+    public LocalDate getFecha() {
+        return fechaPicker.getDate();
     }
 
     public String getHoraInicio() {
@@ -182,12 +189,18 @@ public class View implements PropertyChangeListener {
 
     public void llenarFormularioIA(
             String actividad,
-            String fecha,
+            LocalDate fecha,
             String horaInicio,
             String horaFinal
     ) {
         actividadFld.setText(actividad != null ? actividad : "");
-        fechaFld.setText(fecha != null ? fecha : "");
+
+        if (fecha != null) {
+            fechaPicker.setDate(fecha);
+        } else {
+            fechaPicker.clear();
+        }
+
         horaInicioFld.setText(horaInicio != null ? horaInicio : "");
         horaFinalFld.setText(horaFinal != null ? horaFinal : "");
     }

@@ -67,13 +67,12 @@ public class Controller {
                             view.getTextoIA()
                     );
 
-            String fechaFormateada =
-                    LocalDate.parse(resultado.getFecha())
-                            .format(formatoFecha);
+            LocalDate fecha =
+                    LocalDate.parse(resultado.getFecha());
 
             view.llenarFormularioIA(
                     resultado.getActividad(),
-                    fechaFormateada,
+                    fecha,
                     resultado.getHoraInicio(),
                     resultado.getHoraFinal()
             );
@@ -101,8 +100,10 @@ public class Controller {
         }
     }
 
+
     public void reservar() {
         try {
+
             Funcionario funcionario = (Funcionario) Sesion.getUsuario();
 
             Reserva reserva = new Reserva();
@@ -111,13 +112,24 @@ public class Controller {
 
             reserva.setActividad(view.getActividad());
 
-            reserva.setFecha(LocalDate.parse(view.getFecha(), formatoFecha));
+            reserva.setFecha(view.getFecha());
 
             reserva.setHoraInicio(LocalTime.parse(view.getHoraInicio()));
 
             reserva.setHoraFin(LocalTime.parse(view.getHoraFinal()));
 
-            Service.instance().crearReserva(reserva, model.getCategoriasSeleccionadas());
+            Service.instance().crearReserva(
+                    reserva,
+                    model.getCategoriasSeleccionadas()
+            );
+
+            LocalDate fecha = view.getFecha();
+
+            if (fecha == null) {
+                throw new Exception("Debe seleccionar una fecha");
+            }
+
+            reserva.setFecha(fecha);
 
             view.mostrarMensaje("Reserva realizada correctamente");
 
