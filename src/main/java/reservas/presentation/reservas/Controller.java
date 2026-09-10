@@ -67,8 +67,11 @@ public class Controller {
                             view.getTextoIA()
                     );
 
-            LocalDate fecha =
-                    LocalDate.parse(resultado.getFecha());
+            LocalDate fecha = null;
+
+            if (resultado.getFecha() != null && !resultado.getFecha().isBlank()) {
+                fecha = LocalDate.parse(resultado.getFecha());
+            }
 
             view.llenarFormularioIA(
                     resultado.getActividad(),
@@ -112,24 +115,24 @@ public class Controller {
 
             reserva.setActividad(view.getActividad());
 
-            reserva.setFecha(view.getFecha());
-
             reserva.setHoraInicio(LocalTime.parse(view.getHoraInicio()));
 
             reserva.setHoraFin(LocalTime.parse(view.getHoraFinal()));
+
+            LocalDate fecha = view.getFecha();
+
+            if (fecha == null) {
+                throw new Exception(
+                        "Debe seleccionar una fecha"
+                );
+            }
+
+            reserva.setFecha(fecha);
 
             Service.instance().crearReserva(
                     reserva,
                     model.getCategoriasSeleccionadas()
             );
-
-            LocalDate fecha = view.getFecha();
-
-            if (fecha == null) {
-                throw new Exception("Debe seleccionar una fecha");
-            }
-
-            reserva.setFecha(fecha);
 
             view.mostrarMensaje("Reserva realizada correctamente");
 

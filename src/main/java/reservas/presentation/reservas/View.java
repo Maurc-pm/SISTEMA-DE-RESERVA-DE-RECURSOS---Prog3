@@ -2,7 +2,6 @@ package reservas.presentation.reservas;
 
 import javax.swing.*;
 
-import com.github.lgooddatepicker.components.DatePicker;
 import reservas.logic.Categoria;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
