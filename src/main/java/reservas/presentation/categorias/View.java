@@ -8,20 +8,18 @@ public class View implements PropertyChangeListener {
 
     private JPanel panel;
 
-    // Búsqueda
     private JPanel busquedaPanel;
     private JTextField descripcionBusquedaFld;
     private JButton buscarBtn;
 
-    // Categoría
     private JPanel categoriaPanel;
     private JTextField idFld;
     private JTextField descripcionFld;
     private JButton guardarBtn;
     private JButton borrarBtn;
     private JButton limpiarBtn;
+    private JButton imprimirBtn;
 
-    // Listado
     private JPanel listadoPanel;
     private JTable categoriasTable;
 
@@ -29,22 +27,16 @@ public class View implements PropertyChangeListener {
 
     public View() {
 
-        // Solo se puede seleccionar una categoría a la vez.
         categoriasTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
 
-        // El ID de categoría lo genera el sistema.
         idFld.setEditable(false);
     }
 
     public JPanel getPanel() {
         return panel;
     }
-
-    // =========================================================
-    // MODEL
-    // =========================================================
 
     public void setModel(Model model) {
 
@@ -78,10 +70,6 @@ public class View implements PropertyChangeListener {
         }
     }
 
-    // =========================================================
-    // ACTUALIZAR FORMULARIO
-    // =========================================================
-
     private void actualizarCategoria() {
 
         if (model == null || model.getCurrent() == null) {
@@ -96,10 +84,6 @@ public class View implements PropertyChangeListener {
                 model.getCurrent().getDescripcion()
         );
     }
-
-    // =========================================================
-    // ACTUALIZAR TABLA
-    // =========================================================
 
     private void actualizarTabla() {
 
@@ -119,9 +103,6 @@ public class View implements PropertyChangeListener {
                 )
         );
     }
-    // =========================================================
-// CONTROLLER Y LISTENERS
-// =========================================================
 
     public void setController(Controller controller) {
 
@@ -141,6 +122,10 @@ public class View implements PropertyChangeListener {
                 e -> controller.limpiar()
         );
 
+        imprimirBtn.addActionListener(
+                e -> controller.imprimir()
+        );
+
         categoriasTable
                 .getSelectionModel()
                 .addListSelectionListener(e -> {
@@ -155,28 +140,13 @@ public class View implements PropertyChangeListener {
                 });
     }
 
-
-// =========================================================
-// CAMPOS DE BÚSQUEDA
-// =========================================================
-
     public String getDescripcionBusqueda() {
         return descripcionBusquedaFld.getText().trim();
     }
 
-
-// =========================================================
-// CAMPOS DE CATEGORÍA
-// =========================================================
-
     public String getDescripcionCategoria() {
         return descripcionFld.getText().trim();
     }
-
-
-// =========================================================
-// MENSAJES
-// =========================================================
 
     public void mostrarMensaje(String mensaje) {
 
@@ -197,11 +167,6 @@ public class View implements PropertyChangeListener {
                 JOptionPane.ERROR_MESSAGE
         );
     }
-
-
-// =========================================================
-// TABLA
-// =========================================================
 
     public void limpiarSeleccionTabla() {
         categoriasTable.clearSelection();

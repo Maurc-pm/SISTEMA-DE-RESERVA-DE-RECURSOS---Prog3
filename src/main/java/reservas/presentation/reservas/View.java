@@ -31,6 +31,7 @@ public class View implements PropertyChangeListener {
     private JTextField iaFld;
     private JButton interpretarIAButton;
     private DatePicker fechaPicker;
+    private JButton imprimirButton;
     private Model model;
 
     public View() {
@@ -164,6 +165,7 @@ public class View implements PropertyChangeListener {
                         controller.seleccionar(fila);
                     }
                 });
+        imprimirButton.addActionListener(e -> controller.imprimir());
     }
 
     public String getActividad() {

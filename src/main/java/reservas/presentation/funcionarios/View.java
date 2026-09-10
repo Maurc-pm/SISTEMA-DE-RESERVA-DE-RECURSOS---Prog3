@@ -24,6 +24,8 @@ public class View implements PropertyChangeListener {
     private JPanel listadoPanel;
     private JTable funcionariosTable;
 
+    private JButton imprimirBtn;
+
     private Model model;
 
     public View() {
@@ -107,9 +109,6 @@ public class View implements PropertyChangeListener {
                 )
         );
     }
-    // =========================================================
-// CONTROLLER Y LISTENERS
-// =========================================================
 
     public void setController(Controller controller) {
 
@@ -133,6 +132,11 @@ public class View implements PropertyChangeListener {
                 e -> controller.limpiar()
         );
 
+        // Botón Imprimir PDF
+        imprimirBtn.addActionListener(
+                e -> controller.imprimir()
+        );
+
         // Selección de una fila de la tabla
         funcionariosTable
                 .getSelectionModel()
@@ -148,11 +152,6 @@ public class View implements PropertyChangeListener {
                 });
     }
 
-
-// =========================================================
-// CAMPOS DE BÚSQUEDA
-// =========================================================
-
     public String getIdBusqueda() {
         return idBusquedaFld.getText().trim();
     }
@@ -160,11 +159,6 @@ public class View implements PropertyChangeListener {
     public String getNombreBusqueda() {
         return nombreBusquedaFld.getText().trim();
     }
-
-
-// =========================================================
-// CAMPOS DEL FUNCIONARIO
-// =========================================================
 
     public String getIdFuncionario() {
         return idFld.getText().trim();
@@ -177,11 +171,6 @@ public class View implements PropertyChangeListener {
     public String getTelefonoFuncionario() {
         return telefonoFld.getText().trim();
     }
-
-
-// =========================================================
-// MENSAJES
-// =========================================================
 
     public void mostrarMensaje(String mensaje) {
 
@@ -202,11 +191,6 @@ public class View implements PropertyChangeListener {
                 JOptionPane.ERROR_MESSAGE
         );
     }
-
-
-// =========================================================
-// TABLA
-// =========================================================
 
     public void limpiarSeleccionTabla() {
         funcionariosTable.clearSelection();

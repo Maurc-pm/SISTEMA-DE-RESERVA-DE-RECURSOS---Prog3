@@ -22,6 +22,8 @@ public class View {
     private JButton consultarRecursosBtn;
     private JPanel resultadosRecursosPanel;
     private JButton consultarActividadesBtn;
+    private JButton imprimirRecursosButton;
+    private JButton imprimirActividadesButton;
 
     private JTable recursosTable;
     private JPanel graficoRecursosPanel;
@@ -66,6 +68,14 @@ public class View {
 
         consultarActividadesBtn.addActionListener(
                 e -> controller.consultarActividades()
+        );
+
+        imprimirRecursosButton.addActionListener(e ->
+                controller.imprimirRecursos()
+        );
+
+        imprimirActividadesButton.addActionListener(e ->
+                controller.imprimirActividades()
         );
     }
     public void mostrarRecursos(Map<String, Integer> datos) {
@@ -193,6 +203,46 @@ public class View {
 
         graficoRecursosPanel.revalidate();
         graficoRecursosPanel.repaint();
+    }
+
+    public JFreeChart crearGraficoRecursos(Map<String, Integer> datos) {
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (Map.Entry<String, Integer> entry : datos.entrySet()) {
+            dataset.addValue(
+                    entry.getValue(),
+                    "Cantidad",
+                    entry.getKey()
+            );
+        }
+
+        return ChartFactory.createBarChart(
+                "Recursos reservados por categoría",
+                "Categoría",
+                "Cantidad",
+                dataset
+        );
+    }
+
+    public JFreeChart crearGraficoActividades(Map<String, Integer> datos) {
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (Map.Entry<String, Integer> entry : datos.entrySet()) {
+            dataset.addValue(
+                    entry.getValue(),
+                    "Cantidad",
+                    entry.getKey()
+            );
+        }
+
+        return ChartFactory.createBarChart(
+                "Actividades programadas por semana",
+                "Semana",
+                "Cantidad",
+                dataset
+        );
     }
 
 }

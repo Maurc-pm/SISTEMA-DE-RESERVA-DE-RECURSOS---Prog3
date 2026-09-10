@@ -12,6 +12,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+
+import java.awt.Desktop;
+import java.io.File;
+
 public class Controller {
 
     private final View view;
@@ -216,5 +231,269 @@ public class Controller {
 
         Funcionario funcionario = (Funcionario) Sesion.getUsuario();
         model.setReservas(Service.instance().listarReservasFuncionario(funcionario));
+    }
+
+    public void imprimir() {
+
+        try {
+
+            if (!(Sesion.getUsuario() instanceof Funcionario)) {
+                throw new Exception(
+                        "Solo un funcionario puede generar este reporte"
+                );
+            }
+
+            Funcionario funcionario =
+                    (Funcionario) Sesion.getUsuario();
+
+            List<Reserva> reservas =
+                    Service.instance()
+                            .listarReservasFuncionario(funcionario);
+
+            String path = "reservas.pdf";
+
+            PdfWriter writer =
+                    new PdfWriter(path);
+
+            PdfDocument pdf =
+                    new PdfDocument(writer);
+
+            Document document =
+                    new Document(pdf);
+
+            PdfFont font =
+                    PdfFontFactory.createFont(
+                            StandardFonts.HELVETICA
+                    );
+
+            PdfFont bold =
+                    PdfFontFactory.createFont(
+                            StandardFonts.HELVETICA_BOLD
+                    );
+
+            Paragraph titulo =
+                    new Paragraph("Reporte de Reservas")
+                            .setFont(bold)
+                            .setFontSize(18)
+                            .setTextAlignment(
+                                    TextAlignment.CENTER
+                            );
+
+            document.add(titulo);
+
+            document.add(
+                    new Paragraph(
+                            "Funcionario: "
+                                    + funcionario.getNombre()
+                    ).setFont(font)
+            );
+
+            document.add(
+                    new Paragraph("\n")
+            );
+
+            float[] anchos = {
+                    2, 4, 2, 2, 2, 2, 5
+            };
+
+            Table tabla =
+                    new Table(anchos);
+
+            tabla.useAllAvailableWidth();
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("ID")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Actividad")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Fecha")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Inicio")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Fin")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Estado")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Recursos")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            for (Reserva reserva : reservas) {
+
+                String recursos = "";
+
+                if (reserva.getRecursos() != null) {
+
+                    recursos =
+                            reserva.getRecursos()
+                                    .stream()
+                                    .map(r -> r.getDescripcion())
+                                    .reduce(
+                                            "",
+                                            (a, b) ->
+                                                    a.isEmpty()
+                                                            ? b
+                                                            : a + ", " + b
+                                    );
+                }
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.getId()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.getActividad()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.getFecha()
+                                        .format(formatoFecha)
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.getHoraInicio()
+                                        .toString()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.getHoraFin()
+                                        .toString()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                reserva.estaActiva()
+                                        ? "ACTIVA"
+                                        : "CANCELADA"
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(recursos)
+                                .setFont(font)
+                );
+            }
+
+            document.add(tabla);
+
+            document.close();
+
+            openPdf(path);
+
+        } catch (Exception ex) {
+
+            view.mostrarError(
+                    ex.getMessage()
+            );
+        }
+    }
+
+    private Cell getCell(
+            Paragraph paragraph,
+            TextAlignment alignment,
+            boolean hasBorder) {
+
+        Cell cell =
+                new Cell().add(paragraph);
+
+        cell.setPadding(2);
+        cell.setTextAlignment(alignment);
+
+        if (!hasBorder) {
+            cell.setBorder(
+                    Border.NO_BORDER
+            );
+        }
+
+        return cell;
+    }
+
+    private void openPdf(String path) {
+
+        try {
+
+            File pdfFile =
+                    new File(path);
+
+            if (pdfFile.exists()) {
+
+                if (Desktop.isDesktopSupported()) {
+
+                    Desktop.getDesktop()
+                            .open(pdfFile);
+
+                } else {
+
+                    System.out.println(
+                            "AWT Desktop no es soportado."
+                    );
+                }
+
+            } else {
+
+                System.out.println(
+                        "El archivo PDF no existe."
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

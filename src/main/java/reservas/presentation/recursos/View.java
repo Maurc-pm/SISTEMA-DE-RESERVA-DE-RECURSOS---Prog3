@@ -10,12 +10,10 @@ public class View implements PropertyChangeListener {
 
     private JPanel panel;
 
-    // Filtro
     private JPanel filtroPanel;
     private JComboBox<Categoria> categoriaFiltroCbx;
     private JButton buscarBtn;
 
-    // Recurso
     private JPanel recursoPanel;
     private JTextField idFld;
     private JComboBox<Categoria> categoriaCbx;
@@ -23,8 +21,8 @@ public class View implements PropertyChangeListener {
     private JButton guardarBtn;
     private JButton borrarBtn;
     private JButton limpiarBtn;
+    private JButton imprimirBtn;
 
-    // Listado
     private JPanel listadoPanel;
     private JTable recursosTable;
 
@@ -40,10 +38,6 @@ public class View implements PropertyChangeListener {
     public JPanel getPanel() {
         return panel;
     }
-
-    // =========================================================
-    // MODEL
-    // =========================================================
 
     public void setModel(Model model) {
 
@@ -83,10 +77,6 @@ public class View implements PropertyChangeListener {
         }
     }
 
-    // =========================================================
-    // ACTUALIZAR RECURSO ACTUAL
-    // =========================================================
-
     private void actualizarRecurso() {
 
         if (model == null || model.getCurrent() == null) {
@@ -116,10 +106,6 @@ public class View implements PropertyChangeListener {
         }
     }
 
-    // =========================================================
-    // ACTUALIZAR CATEGORÍAS DE LOS COMBOBOX
-    // =========================================================
-
     private void actualizarCategorias() {
 
         if (model == null) {
@@ -129,10 +115,6 @@ public class View implements PropertyChangeListener {
         categoriaFiltroCbx.removeAllItems();
         categoriaCbx.removeAllItems();
 
-        /*
-         * Opción especial para mostrar todos los recursos.
-         * No es una categoría real del sistema.
-         */
         categoriaFiltroCbx.addItem(
                 new Categoria("", "Todas")
         );
@@ -149,10 +131,6 @@ public class View implements PropertyChangeListener {
             categoriaCbx.setSelectedIndex(-1);
         }
     }
-
-    // =========================================================
-    // ACTUALIZAR TABLA
-    // =========================================================
 
     private void actualizarTabla() {
 
@@ -173,33 +151,29 @@ public class View implements PropertyChangeListener {
                 )
         );
     }
-    // =========================================================
-// CONTROLLER Y LISTENERS
-// =========================================================
 
     public void setController(Controller controller) {
 
-        // Botón Buscar
         buscarBtn.addActionListener(
                 e -> controller.buscar()
         );
 
-        // Botón Guardar
         guardarBtn.addActionListener(
                 e -> controller.guardar()
         );
 
-        // Botón Borrar
         borrarBtn.addActionListener(
                 e -> controller.borrar()
         );
 
-        // Botón Limpiar
         limpiarBtn.addActionListener(
                 e -> controller.limpiar()
         );
 
-        // Selección de una fila de la tabla
+        imprimirBtn.addActionListener(
+                e -> controller.imprimir()
+        );
+
         recursosTable
                 .getSelectionModel()
                 .addListSelectionListener(e -> {
@@ -214,21 +188,11 @@ public class View implements PropertyChangeListener {
                 });
     }
 
-
-// =========================================================
-// FILTRO
-// =========================================================
-
     public Categoria getCategoriaFiltro() {
 
         return (Categoria)
                 categoriaFiltroCbx.getSelectedItem();
     }
-
-
-// =========================================================
-// DATOS DEL RECURSO
-// =========================================================
 
     public String getIdRecurso() {
         return idFld.getText().trim();
@@ -243,11 +207,6 @@ public class View implements PropertyChangeListener {
     public String getDescripcionRecurso() {
         return descripcionFld.getText().trim();
     }
-
-
-// =========================================================
-// MENSAJES
-// =========================================================
 
     public void mostrarMensaje(String mensaje) {
 
@@ -268,11 +227,6 @@ public class View implements PropertyChangeListener {
                 JOptionPane.ERROR_MESSAGE
         );
     }
-
-
-// =========================================================
-// TABLA
-// =========================================================
 
     public void limpiarSeleccionTabla() {
         recursosTable.clearSelection();

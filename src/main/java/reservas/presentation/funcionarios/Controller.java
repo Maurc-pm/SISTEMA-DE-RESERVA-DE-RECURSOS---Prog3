@@ -5,6 +5,21 @@ import reservas.logic.Service;
 
 import java.util.List;
 
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+
+import java.awt.Desktop;
+import java.io.File;
+
 public class Controller {
 
     private final View view;
@@ -22,10 +37,6 @@ public class Controller {
         limpiar();
     }
 
-    // =========================================================
-    // BUSCAR
-    // =========================================================
-
     public void buscar() {
 
         String id = view.getIdBusqueda();
@@ -37,10 +48,6 @@ public class Controller {
 
         model.setFuncionarios(resultado);
     }
-
-    // =========================================================
-    // GUARDAR / MODIFICAR
-    // =========================================================
 
     public void guardar() {
 
@@ -59,7 +66,6 @@ public class Controller {
 
             if (editando) {
 
-                // Al modificar mantenemos el ID original.
                 funcionario.setId(
                         model.getCurrent().getId()
                 );
@@ -109,10 +115,6 @@ public class Controller {
         }
     }
 
-    // =========================================================
-    // BORRAR
-    // =========================================================
-
     public void borrar() {
 
         try {
@@ -151,10 +153,6 @@ public class Controller {
         }
     }
 
-    // =========================================================
-    // LIMPIAR
-    // =========================================================
-
     public void limpiar() {
 
         model.setCurrent(
@@ -163,10 +161,6 @@ public class Controller {
 
         view.limpiarSeleccionTabla();
     }
-
-    // =========================================================
-    // SELECCIONAR FILA DE LA TABLA
-    // =========================================================
 
     public void seleccionar(int fila) {
 
@@ -185,15 +179,178 @@ public class Controller {
         model.setCurrent(funcionario);
     }
 
-    // =========================================================
-    // CARGAR TODOS LOS FUNCIONARIOS
-    // =========================================================
-
     private void cargarFuncionarios() {
 
         model.setFuncionarios(
                 Service.instance()
                         .listarFuncionarios()
         );
+    }
+
+    public void imprimir() {
+
+        try {
+
+            List<Funcionario> funcionarios =
+                    model.getFuncionarios();
+
+            String path = "funcionarios.pdf";
+
+            PdfWriter writer =
+                    new PdfWriter(path);
+
+            PdfDocument pdf =
+                    new PdfDocument(writer);
+
+            Document document =
+                    new Document(pdf);
+
+            PdfFont font =
+                    PdfFontFactory.createFont(
+                            StandardFonts.HELVETICA
+                    );
+
+            PdfFont bold =
+                    PdfFontFactory.createFont(
+                            StandardFonts.HELVETICA_BOLD
+                    );
+
+            Paragraph titulo =
+                    new Paragraph("Reporte de Funcionarios")
+                            .setFont(bold)
+                            .setFontSize(18)
+                            .setTextAlignment(
+                                    TextAlignment.CENTER
+                            );
+
+            document.add(titulo);
+
+            document.add(
+                    new Paragraph("\n")
+            );
+
+            Table tabla =
+                    new Table(
+                            new float[]{2, 4, 3}
+                    );
+
+            tabla.useAllAvailableWidth();
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("ID")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Nombre")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            tabla.addHeaderCell(
+                    getCell(
+                            new Paragraph("Teléfono")
+                                    .setFont(bold),
+                            TextAlignment.CENTER,
+                            true
+                    )
+            );
+
+            for (Funcionario funcionario : funcionarios) {
+
+                tabla.addCell(
+                        new Paragraph(
+                                funcionario.getId()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                funcionario.getNombre()
+                        ).setFont(font)
+                );
+
+                tabla.addCell(
+                        new Paragraph(
+                                funcionario.getTelefono()
+                        ).setFont(font)
+                );
+            }
+
+            document.add(tabla);
+
+            document.close();
+
+            openPdf(path);
+
+        } catch (Exception ex) {
+
+            view.mostrarError(
+                    ex.getMessage()
+            );
+        }
+    }
+
+    private Cell getCell(
+            Paragraph paragraph,
+            TextAlignment alignment,
+            boolean hasBorder) {
+
+        Cell cell =
+                new Cell().add(paragraph);
+
+        cell.setPadding(2);
+
+        cell.setTextAlignment(
+                alignment
+        );
+
+        if (!hasBorder) {
+            cell.setBorder(
+                    Border.NO_BORDER
+            );
+        }
+
+        return cell;
+    }
+
+    private void openPdf(String path) {
+
+        try {
+
+            File pdfFile =
+                    new File(path);
+
+            if (pdfFile.exists()) {
+
+                if (Desktop.isDesktopSupported()) {
+
+                    Desktop.getDesktop()
+                            .open(pdfFile);
+
+                } else {
+
+                    System.out.println(
+                            "AWT Desktop no es soportado."
+                    );
+                }
+
+            } else {
+
+                System.out.println(
+                        "El archivo PDF no existe."
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
