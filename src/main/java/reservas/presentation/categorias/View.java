@@ -1,5 +1,7 @@
 package reservas.presentation.categorias;
 
+import reservas.presentation.Icons;
+
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,6 +34,12 @@ public class View implements PropertyChangeListener {
         );
 
         idFld.setEditable(false);
+
+        Icons.set(guardarBtn, "save.png");
+        Icons.set(borrarBtn, "delete.png");
+        Icons.set(limpiarBtn, "clear.png");
+        Icons.set(buscarBtn, "search.png");
+        Icons.set(imprimirBtn, "pdf.png");
     }
 
     public JPanel getPanel() {

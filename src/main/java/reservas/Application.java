@@ -1,6 +1,7 @@
 package reservas;
 
 import reservas.logic.Sesion;
+import reservas.presentation.Icons;
 
 import javax.swing.*;
 
@@ -52,6 +53,7 @@ public class Application {
 
         JFrame window =
                 new JFrame("Sistema de Reservas");
+        Icons.setWindowIcon(window, "icon.png");
 
         JTabbedPane tabs =
                 new JTabbedPane();
@@ -77,6 +79,7 @@ public class Application {
 
             tabs.addTab(
                     "Funcionarios",
+                    Icons.load("funcionarios.png"),
                     funcionariosView.getPanel()
             );
 
@@ -95,6 +98,7 @@ public class Application {
 
             tabs.addTab(
                     "Categorías",
+                    Icons.load("categorias.png"),
                     categoriasView.getPanel()
             );
 
@@ -113,6 +117,7 @@ public class Application {
 
             tabs.addTab(
                     "Recursos",
+                    Icons.load("recursos.png"),
                     recursosView.getPanel()
             );
         }
@@ -137,6 +142,7 @@ public class Application {
 
             tabs.addTab(
                     "Reservas",
+                    Icons.load("reservas.png"),
                     reservasView.getPanel()
             );
         }
@@ -159,6 +165,7 @@ public class Application {
 
         tabs.addTab(
                 "Calendarización",
+                Icons.load("calendarizacion.png"),
                 calendarizacionView.getPanel()
         );
         // =========================
@@ -179,6 +186,7 @@ public class Application {
 
         tabs.addTab(
                 "Actividades",
+                Icons.load("actividades.png"),
                 actividadesView.getPanel()
         );
 
@@ -201,6 +209,7 @@ public class Application {
 
         tabs.addTab(
                 "Estadísticas",
+                Icons.load("statistics.png"),
                 estadisticasView.getPanel()
         );
 

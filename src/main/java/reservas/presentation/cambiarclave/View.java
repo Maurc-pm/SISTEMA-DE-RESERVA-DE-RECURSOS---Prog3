@@ -1,5 +1,7 @@
 package reservas.presentation.cambiarclave;
 
+import reservas.presentation.Icons;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -53,6 +55,10 @@ public class View extends JDialog {
                                                }
                                            }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        Icons.set(buttonCancelar, "cancel.png");
+        Icons.set(buttonCambiar, "clave.png");
+        Icons.setWindowIcon(this, "clave.png");
     }
 
     public String getId() {

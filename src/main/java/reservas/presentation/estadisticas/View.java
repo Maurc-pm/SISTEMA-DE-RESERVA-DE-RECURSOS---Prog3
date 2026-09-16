@@ -1,5 +1,7 @@
 package reservas.presentation.estadisticas;
 
+import reservas.presentation.Icons;
+
 import com.github.lgooddatepicker.components.DatePicker;
 
 import javax.swing.table.DefaultTableModel;
@@ -49,6 +51,11 @@ public class View {
         resultadosRecursosPanel.add(
                 graficoRecursosPanel
         );
+
+        Icons.set(consultarRecursosBtn, "search.png");
+        Icons.set(consultarActividadesBtn, "search.png");
+        Icons.set(imprimirRecursosButton, "pdf.png");
+        Icons.set(imprimirActividadesButton, "pdf.png");
     }
     public JPanel getPanel() {
         return panel;

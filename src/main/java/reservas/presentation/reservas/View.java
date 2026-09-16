@@ -1,5 +1,7 @@
 package reservas.presentation.reservas;
 
+import reservas.presentation.Icons;
+
 import javax.swing.*;
 
 import reservas.logic.Categoria;
@@ -41,6 +43,13 @@ public class View implements PropertyChangeListener {
         );
 
         fechaPicker.setDate(LocalDate.now());
+
+        Icons.set(interpretarIAButton, "ai.png");
+        Icons.set(agregarButton, "ok.png");
+        Icons.set(reservarButton, "reservas.png");
+        Icons.set(limpiarButton, "clear.png");
+        Icons.set(cancelarButton, "cancel.png");
+        Icons.set(imprimirButton, "pdf.png");
     }
 
     public JPanel getPanel() {

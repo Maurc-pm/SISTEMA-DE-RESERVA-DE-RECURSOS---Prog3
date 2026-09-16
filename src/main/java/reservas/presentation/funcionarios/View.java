@@ -1,5 +1,7 @@
 package reservas.presentation.funcionarios;
 
+import reservas.presentation.Icons;
+
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,6 +35,12 @@ public class View implements PropertyChangeListener {
         funcionariosTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
+
+        Icons.set(buscarBtn, "search.png");
+        Icons.set(guardarBtn, "save.png");
+        Icons.set(borrarBtn, "delete.png");
+        Icons.set(limpiarBtn, "clear.png");
+        Icons.set(imprimirBtn, "pdf.png");
     }
 
     public JPanel getPanel() {

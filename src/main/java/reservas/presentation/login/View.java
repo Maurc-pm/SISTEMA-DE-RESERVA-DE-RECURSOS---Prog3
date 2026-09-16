@@ -1,5 +1,7 @@
 package reservas.presentation.login;
 
+import reservas.presentation.Icons;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -54,6 +56,11 @@ public class View extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        Icons.set(buttonOK, "login.png");
+        Icons.set(buttonCancel, "cancel.png");
+        Icons.set(buttonCambiarClave, "clave.png");
+        Icons.setWindowIcon(this, "loginDialog.png");
     }
 
     public String getId() {

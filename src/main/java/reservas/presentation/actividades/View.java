@@ -1,5 +1,7 @@
 package reservas.presentation.actividades;
 
+import reservas.presentation.Icons;
+
 import com.github.lgooddatepicker.components.DatePicker;
 import reservas.logic.Celda;
 
@@ -38,6 +40,9 @@ public class View implements PropertyChangeListener {
 
     public View() {
         fechaReferenciaPicker.setDate(LocalDate.now());
+
+        Icons.set(cargarBtn, "search.png");
+        Icons.set(imprimirBtn, "pdf.png");
     }
 
     public JPanel getPanel() {

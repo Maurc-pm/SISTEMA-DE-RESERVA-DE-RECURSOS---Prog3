@@ -1,5 +1,7 @@
 package reservas.presentation.recursos;
 
+import reservas.presentation.Icons;
+
 import reservas.logic.Categoria;
 
 import javax.swing.*;
@@ -33,6 +35,12 @@ public class View implements PropertyChangeListener {
         recursosTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
+
+        Icons.set(buscarBtn, "search.png");
+        Icons.set(guardarBtn, "save.png");
+        Icons.set(borrarBtn, "delete.png");
+        Icons.set(limpiarBtn, "clear.png");
+        Icons.set(imprimirBtn, "pdf.png");
     }
 
     public JPanel getPanel() {
