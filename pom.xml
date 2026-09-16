@@ -48,31 +48,53 @@
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.16</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.16</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.ai4j</groupId>
-            <artifactId>openai4j</artifactId>
-            <version>0.23.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
-            <version>7.2.3</version>
-        </dependency>
-
     </dependencies>
 
+    <build>
+        <plugins>
+
+            <!--
+                PRUEBAS DE UNIDAD (JUnit Jupiter)
+                Corre en la fase "test" (mvn test).
+                Toma las clases *Test.java, p. ej. EstadisticaServiceTest.
+                Se excluyen las *IT.java para que no se corran dos veces
+                (esas las corre Failsafe más adelante en el ciclo).
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                        <exclude>**/IT*.java</exclude>
+                        <exclude>**/*ITCase.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!--
+                PRUEBAS DE INTEGRACIÓN (JUnit Jupiter)
+                Corren en las fases "integration-test" y "verify"
+                (mvn verify), DESPUÉS de que la app ya compiló y
+                pasó las pruebas de unidad.
+                Toma las clases *IT.java, p. ej. ServiceIT.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
