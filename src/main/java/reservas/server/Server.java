@@ -33,7 +33,14 @@ public final class Server {
         while (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 Socket socket = serverSocket.accept();
-                Worker worker = new Worker(this, socket, service);
+                Worker worker;
+                try {
+                    worker = new Worker(this, socket, service);
+                } catch (IOException e) {
+                    try { socket.close(); } catch (IOException ignored) { }
+                    System.out.println("Error inicializando cliente: " + e.getClass().getSimpleName());
+                    continue;
+                }
                 workers.add(worker);
                 System.out.println("Cliente conectado");
                 Thread hilo = new Thread(worker, "reservas-client-" + socket.getPort());

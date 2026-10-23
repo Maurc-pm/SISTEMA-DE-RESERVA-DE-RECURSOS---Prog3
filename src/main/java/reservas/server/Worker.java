@@ -13,19 +13,19 @@ public final class Worker implements Runnable {
     private final Server server;
     private final Socket socket;
     private final IService service;
-    private ObjectOutputStream out;
+    private final ObjectOutputStream out;
 
-    public Worker(Server server, Socket socket, IService service) {
+    public Worker(Server server, Socket socket, IService service) throws IOException {
         this.server = server;
         this.socket = socket;
         this.service = service;
+        this.out = new ObjectOutputStream(socket.getOutputStream());
+        this.out.flush();
     }
 
     @Override
     public void run() {
         try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush();
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             while (!socket.isClosed()) {
                 Object recibido = in.readObject();
@@ -50,7 +50,6 @@ public final class Worker implements Runnable {
     }
 
     public synchronized void enviar(Mensaje mensaje) throws IOException {
-        if (out == null) throw new IOException("Canal de salida no inicializado");
         out.writeObject(mensaje);
         out.flush();
         out.reset();
