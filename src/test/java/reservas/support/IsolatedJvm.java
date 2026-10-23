@@ -13,6 +13,8 @@ public final class IsolatedJvm {
 
     public static void run(Path directory, Class<?> scenario, String... args) throws Exception {
         Path cwd = directory.toRealPath();
+        Path dbConfig = Path.of("db.properties").toAbsolutePath().normalize();
+        Path dbSchema = Path.of("database", "reservas.sql").toAbsolutePath().normalize();
         String rawClasspath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
         String classpath = Arrays.stream(rawClasspath.split(java.util.regex.Pattern.quote(File.pathSeparator)))
                 .map(p -> Path.of(p).toAbsolutePath().normalize().toString()).collect(Collectors.joining(File.pathSeparator));
@@ -20,7 +22,9 @@ public final class IsolatedJvm {
         List<String> command = new ArrayList<>(List.of(
                 Path.of(System.getProperty("java.home"), "bin", executable).toString(),
                 "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8",
-                "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8", "-cp", classpath,
+                "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8", "-Ddb.config=" + dbConfig,
+                "-Dreservas.schema=" + dbSchema,
+                "-cp", classpath,
                 scenario.getName(), cwd.toString()));
         command.addAll(List.of(args));
         Path log = Files.createTempFile(cwd, "scenario-", ".log");

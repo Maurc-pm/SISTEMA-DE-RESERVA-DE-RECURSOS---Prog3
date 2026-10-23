@@ -7,14 +7,15 @@ import java.util.List;
 
 /** Solo datos de prueba; todos se crean mediante las operaciones públicas reales del Service. */
 public final class IntegrationFixture {
-    public final Service service = Service.instance();
+    public final Service service;
     public final Funcionario ana = new Funcionario("F1", "ignorada", "Ana Pérez", "8888-0000");
     public final Categoria sala = new Categoria("", "Sala & Proyección");
     public final Recurso r1 = new Recurso("R1", sala, "Sala Norte");
     public final Recurso r2 = new Recurso("R2", sala, "Sala Sur");
     public static final LocalDate DATE = LocalDate.of(2026, 9, 17);
 
-    public IntegrationFixture() throws Exception {
+    public IntegrationFixture(Service service) throws Exception {
+        this.service = service;
         service.crearFuncionario(ana); service.crearCategoria(sala);
         service.crearRecurso(r1); service.crearRecurso(r2);
     }

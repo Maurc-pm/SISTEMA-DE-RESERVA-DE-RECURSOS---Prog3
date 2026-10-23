@@ -12,8 +12,9 @@ import static org.mockito.Mockito.*;
 public final class PdfScenario {
     public static void main(String[] args) throws Exception {
         IsolatedJvm.assertDirectory(args[0]);
-        try (FixedTime time = new FixedTime()) {
-            IntegrationFixture f = new IntegrationFixture();
+        try (MySqlScenario environment = MySqlScenario.start(true);
+             FixedTime time = new FixedTime()) {
+            IntegrationFixture f = new IntegrationFixture(environment.service);
             f.reservar("Clase de integración", "08:30", "10:00");
             Reserva cancelada = f.reservar("ACTIVIDAD_CANCELADA", "14:00", "15:00");
             f.service.cancelarReserva(cancelada);

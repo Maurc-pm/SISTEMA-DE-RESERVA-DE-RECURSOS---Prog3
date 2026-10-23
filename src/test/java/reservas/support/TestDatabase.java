@@ -29,7 +29,11 @@ public final class TestDatabase {
             ejecutar(connection, "DROP TABLE IF EXISTS categoria");
             ejecutar(connection, "DROP TABLE IF EXISTS usuario");
 
-            String script = Files.readString(Path.of("database", "reservas.sql"));
+            String schemaPath = System.getProperty("reservas.schema");
+            Path schema = schemaPath == null
+                    ? Path.of("database", "reservas.sql")
+                    : Path.of(schemaPath);
+            String script = Files.readString(schema);
             script = script.replaceAll("(?m)^\\s*--.*(?:\\R|$)", "");
             for (String sentencia : script.split(";")) {
                 String sql = sentencia.trim();

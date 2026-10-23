@@ -19,10 +19,13 @@ public final class XmlScenario {
                 assertThrows(Exception.class, XmlStorage::cargar);
             }
             case "bootstrap" -> {
-                Service service = Service.instance();
-                assertTrue(service.login("admin", "admin").esAdministrador());
+                Data initial = new Data();
+                initial.getUsuarios().add(new Usuario("admin", "admin", Usuario.ADMINISTRADOR));
+                XmlStorage.guardar(initial);
                 assertTrue(Files.size(Path.of("data/reservas.xml")) > 0);
-                assertEquals(1, XmlStorage.cargar().getUsuarios().size());
+                Data loaded = XmlStorage.cargar();
+                assertEquals(1, loaded.getUsuarios().size());
+                assertTrue(loaded.getUsuarios().get(0).esAdministrador());
             }
             case "orphans" -> orphanBehavior();
             default -> throw new IllegalArgumentException(args[1]);
@@ -78,14 +81,23 @@ public final class XmlScenario {
     }
     private static void orphanBehavior() throws Exception {
         // Caracterización explícita de una limitación; NO afirma integridad referencial.
-        IntegrationFixture fixture = new IntegrationFixture();
-        fixture.reservar("Clase", "08:00", "09:00");
-        fixture.service.eliminarRecurso("R1");
-        assertEquals(1, fixture.service.listarReservas().get(0).getRecursos().size());
-        assertEquals(0, XmlStorage.cargar().getReservas().get(0).getRecursos().size());
-        fixture.service.eliminarFuncionario("F1");
-        assertEquals(1, fixture.service.listarReservas().size());
-        assertEquals(0, XmlStorage.cargar().getReservas().size());
-        System.out.println("LIMITACION CONFIRMADA: eliminar referencias pierde recursos/reservas al recargar XML.");
+        Data data = new Data();
+        Funcionario funcionario = new Funcionario("F1", "clave", "Ana", "8888");
+        Categoria categoria = new Categoria("C1", "Sala");
+        Recurso recurso = new Recurso("R1", categoria, "Sala Norte");
+        Reserva reserva = new Reserva("RES1", funcionario, "Clase", LocalDate.of(2026, 9, 17),
+                LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(recurso), Reserva.ACTIVA);
+        data.getUsuarios().add(funcionario);
+        data.getCategorias().add(categoria);
+        data.getRecursos().add(recurso);
+        data.getReservas().add(reserva);
+        XmlStorage.guardar(data);
+        Data loaded = XmlStorage.cargar();
+        assertEquals(1, loaded.getReservas().get(0).getRecursos().size());
+        loaded.getRecursos().clear();
+        XmlStorage.guardar(loaded);
+        Data reloaded = XmlStorage.cargar();
+        assertTrue(reloaded.getRecursos().isEmpty());
+        assertTrue(reloaded.getReservas().get(0).getRecursos().isEmpty());
     }
 }

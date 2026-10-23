@@ -58,6 +58,17 @@ class UsuarioDaoIT {
     }
 
     @Test
+    void listarDevuelveAdminYFuncionarioOrdenadosPorId() throws SQLException {
+        usuarios.insertar(new Funcionario("F1", "clave-f", "Ana", "8888"));
+
+        List<Usuario> listados = usuarios.listar();
+
+        assertEquals(List.of("admin", "F1"), listados.stream().map(Usuario::getId).toList());
+        assertFalse(listados.get(0) instanceof Funcionario);
+        assertInstanceOf(Funcionario.class, listados.get(1));
+    }
+
+    @Test
     void reconoceReservasYLaLlaveForaneaImpideEliminarFuncionarioEnUso() throws SQLException {
         Funcionario funcionario = new Funcionario("F1", "clave", "Ana", "8888");
         usuarios.insertar(funcionario);
