@@ -33,12 +33,8 @@ public class Database {
     }
 
     private static Properties cargarPropiedades() {
-        String rutaConfiguracion = System.getProperty("db.config");
-        Path ruta = rutaConfiguracion == null
-                ? Path.of("db.properties")
-                : Path.of(rutaConfiguracion);
-
-        if (!Files.exists(ruta)) {
+        Path ruta = buscarArchivo();
+        if (ruta == null) {
             throw new IllegalStateException(ARCHIVO_NO_ENCONTRADO);
         }
 
@@ -49,5 +45,25 @@ public class Database {
             throw new IllegalStateException("No se pudo leer db.properties.", exception);
         }
         return properties;
+    }
+
+    /**
+     * Busca db.properties en este orden: la ruta de la propiedad del sistema
+     * "db.config", la carpeta actual y la carpeta superior. La carpeta superior
+     * permite ejecutar el backend desde su módulo (backend/) con el archivo en la raíz.
+     */
+    private static Path buscarArchivo() {
+        String rutaConfiguracion = System.getProperty("db.config");
+        Path[] candidatos = {
+                rutaConfiguracion == null ? null : Path.of(rutaConfiguracion),
+                Path.of("db.properties"),
+                Path.of("..", "db.properties")
+        };
+        for (Path candidato : candidatos) {
+            if (candidato != null && Files.isRegularFile(candidato)) {
+                return candidato;
+            }
+        }
+        return null;
     }
 }

@@ -32,12 +32,12 @@ public abstract class ServiceTestSupport {
         singleton = mockStatic(Service.class);
         singleton.when(Service::instance).thenReturn(service);
         time = new FixedTime();
-        Sesion.logout();
+
     }
 
     @AfterEach
     final void liberarAislamiento() {
-        Sesion.logout();
+
         if (time != null) time.close();
         if (singleton != null) singleton.close();
     }

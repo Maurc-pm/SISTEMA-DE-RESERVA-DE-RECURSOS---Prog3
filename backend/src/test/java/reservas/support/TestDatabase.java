@@ -29,10 +29,7 @@ public final class TestDatabase {
             ejecutar(connection, "DROP TABLE IF EXISTS categoria");
             ejecutar(connection, "DROP TABLE IF EXISTS usuario");
 
-            String schemaPath = System.getProperty("reservas.schema");
-            Path schema = schemaPath == null
-                    ? Path.of("database", "reservas.sql")
-                    : Path.of(schemaPath);
+            Path schema = buscarEsquema();
             String script = Files.readString(schema);
             script = script.replaceAll("(?m)^\\s*--.*(?:\\R|$)", "");
             for (String sentencia : script.split(";")) {
@@ -50,5 +47,21 @@ public final class TestDatabase {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.execute();
         }
+    }
+
+    /** reservas.schema, luego database/reservas.sql en la carpeta actual o en la superior. */
+    private static Path buscarEsquema() {
+        String schemaPath = System.getProperty("reservas.schema");
+        Path[] candidatos = {
+                schemaPath == null ? null : Path.of(schemaPath),
+                Path.of("database", "reservas.sql"),
+                Path.of("..", "database", "reservas.sql")
+        };
+        for (Path candidato : candidatos) {
+            if (candidato != null && Files.isRegularFile(candidato)) {
+                return candidato;
+            }
+        }
+        throw new IllegalStateException("No se encontró database/reservas.sql");
     }
 }
