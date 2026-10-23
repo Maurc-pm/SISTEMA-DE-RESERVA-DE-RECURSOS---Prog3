@@ -1,8 +1,10 @@
 package reservas.ai;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class ReservaExtraccion {
+public class ReservaExtraccion implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String actividad;
     private String fecha;

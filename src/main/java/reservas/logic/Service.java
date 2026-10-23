@@ -10,13 +10,14 @@ import reservas.data.Data;
 import reservas.data.Database;
 import reservas.data.MySqlPersistencia;
 import reservas.data.Persistencia;
+import reservas.protocol.IService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Service {
+public class Service implements IService {
 
     private static volatile Service INSTANCE;
 

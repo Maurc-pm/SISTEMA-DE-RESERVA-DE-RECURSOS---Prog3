@@ -1,8 +1,10 @@
 package reservas.logic;
 
 import java.util.Objects;
+import java.io.Serializable;
 
-public class Usuario {
+public class Usuario implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public static final String ADMINISTRADOR = "ADMINISTRADOR";
     public static final String FUNCIONARIO = "FUNCIONARIO";
