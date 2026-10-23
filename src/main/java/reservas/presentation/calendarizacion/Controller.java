@@ -1,5 +1,7 @@
 package reservas.presentation.calendarizacion;
 
+import reservas.presentation.Servicio;
+
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -15,7 +17,6 @@ import com.itextpdf.layout.borders.Border;
 import reservas.logic.Categoria;
 import reservas.logic.Recurso;
 import reservas.logic.Reserva;
-import reservas.logic.Service;
 import reservas.logic.Celda;
 
 import java.awt.Desktop;
@@ -79,11 +80,11 @@ public class Controller {
             }
 
             List<Recurso> recursos =
-                    Service.instance()
+                    Servicio.get()
                             .buscarRecursosPorCategoria(categoria);
 
             List<Reserva> reservas =
-                    Service.instance().listarReservas();
+                    Servicio.get().listarReservas();
 
             Celda[][] matriz =
                     construirMatriz(fecha, recursos, reservas);
@@ -115,9 +116,9 @@ public class Controller {
                 throw new Exception("Debe seleccionar una categoría");
             }
 
-            List<Recurso> recursos = Service.instance().buscarRecursosPorCategoria(categoria);
+            List<Recurso> recursos = Servicio.get().buscarRecursosPorCategoria(categoria);
 
-            List<Reserva> reservas = Service.instance().listarReservas();
+            List<Reserva> reservas = Servicio.get().listarReservas();
 
             Celda[][] matriz = construirMatriz(fecha, recursos, reservas);
 
@@ -320,9 +321,10 @@ public class Controller {
     }
 
     private void cargarCategorias() {
-
-        model.setCategorias(
-                Service.instance().listarCategorias()
-        );
+        try {
+            model.setCategorias(Servicio.get().listarCategorias());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 }

@@ -1,9 +1,10 @@
 package reservas.presentation.reservas;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Categoria;
 import reservas.logic.Funcionario;
 import reservas.logic.Reserva;
-import reservas.logic.Service;
 import reservas.logic.Sesion;
 
 import java.time.LocalDate;
@@ -78,7 +79,7 @@ public class Controller {
         try {
 
             var resultado =
-                    Service.instance().extraerReservaConIA(
+                    Servicio.get().extraerReservaConIA(
                             view.getTextoIA()
                     );
 
@@ -144,7 +145,7 @@ public class Controller {
 
             reserva.setFecha(fecha);
 
-            Service.instance().crearReserva(
+            Servicio.get().crearReserva(
                     reserva,
                     model.getCategoriasSeleccionadas()
             );
@@ -172,7 +173,7 @@ public class Controller {
                 throw new Exception("Debe seleccionar una reserva");
             }
 
-            Service.instance().cancelarReserva(reserva);
+            Servicio.get().cancelarReserva(reserva);
 
             view.mostrarMensaje("Reserva cancelada correctamente");
 
@@ -216,7 +217,11 @@ public class Controller {
     // =========================================================
 
     private void cargarCategorias() {
-        model.setCategorias(Service.instance().listarCategorias());
+        try {
+            model.setCategorias(Servicio.get().listarCategorias());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     // =========================================================
@@ -230,7 +235,11 @@ public class Controller {
         }
 
         Funcionario funcionario = (Funcionario) Sesion.getUsuario();
-        model.setReservas(Service.instance().listarReservasFuncionario(funcionario));
+        try {
+            model.setReservas(Servicio.get().listarReservasFuncionario(funcionario));
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void imprimir() {
@@ -247,7 +256,7 @@ public class Controller {
                     (Funcionario) Sesion.getUsuario();
 
             List<Reserva> reservas =
-                    Service.instance()
+                    Servicio.get()
                             .listarReservasFuncionario(funcionario);
 
             String path = "reservas.pdf";

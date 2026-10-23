@@ -1,7 +1,8 @@
 package reservas.presentation.funcionarios;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Funcionario;
-import reservas.logic.Service;
 
 import java.util.List;
 
@@ -38,15 +39,14 @@ public class Controller {
     }
 
     public void buscar() {
-
-        String id = view.getIdBusqueda();
-        String nombre = view.getNombreBusqueda();
-
-        List<Funcionario> resultado =
-                Service.instance()
-                        .buscarFuncionarios(id, nombre);
-
-        model.setFuncionarios(resultado);
+        try {
+            String id = view.getIdBusqueda();
+            String nombre = view.getNombreBusqueda();
+            List<Funcionario> resultado = Servicio.get().buscarFuncionarios(id, nombre);
+            model.setFuncionarios(resultado);
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void guardar() {
@@ -87,7 +87,7 @@ public class Controller {
 
             if (editando) {
 
-                Service.instance()
+                Servicio.get()
                         .modificarFuncionario(funcionario);
 
                 view.mostrarMensaje(
@@ -96,7 +96,7 @@ public class Controller {
 
             } else {
 
-                Service.instance()
+                Servicio.get()
                         .crearFuncionario(funcionario);
 
                 view.mostrarMensaje(
@@ -133,7 +133,7 @@ public class Controller {
                 );
             }
 
-            Service.instance()
+            Servicio.get()
                     .eliminarFuncionario(
                             actual.getId()
                     );
@@ -180,11 +180,11 @@ public class Controller {
     }
 
     private void cargarFuncionarios() {
-
-        model.setFuncionarios(
-                Service.instance()
-                        .listarFuncionarios()
-        );
+        try {
+            model.setFuncionarios(Servicio.get().listarFuncionarios());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void imprimir() {

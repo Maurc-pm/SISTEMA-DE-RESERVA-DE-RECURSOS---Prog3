@@ -1,7 +1,8 @@
 package reservas.presentation.estadisticas;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.EstadisticaService;
-import reservas.logic.Service;
 
 import javax.swing.*;
 
@@ -51,7 +52,7 @@ public class Controller {
                     estadisticaService.recursosPorCategoria(
                             view.getDesdeRecursos(),
                             view.getHastaRecursos(),
-                            Service.instance().listarReservas()
+                            Servicio.get().listarReservas()
                     )
             );
 
@@ -81,7 +82,7 @@ public class Controller {
                     estadisticaService.actividadesPorSemana(
                             view.getDesdeRecursos(),
                             view.getHastaRecursos(),
-                            Service.instance().listarReservas()
+                            Servicio.get().listarReservas()
                     )
             );
 
@@ -119,7 +120,7 @@ public class Controller {
                     estadisticaService.recursosPorCategoria(
                             desde,
                             hasta,
-                            Service.instance().listarReservas()
+                            Servicio.get().listarReservas()
                     );
 
             String dest = "estadisticas_recursos.pdf";
@@ -270,7 +271,7 @@ public class Controller {
                     estadisticaService.actividadesPorSemana(
                             desde,
                             hasta,
-                            Service.instance().listarReservas()
+                            Servicio.get().listarReservas()
                     );
 
             String dest = "estadisticas_actividades.pdf";

@@ -1,6 +1,7 @@
 package reservas.presentation.cambiarclave;
 
-import reservas.logic.Service;
+import reservas.presentation.Servicio;
+
 import reservas.logic.Usuario;
 
 public class Controller {
@@ -26,9 +27,9 @@ public class Controller {
             String confirmar = view.getConfirmarClave();
 
             Usuario usuario =
-                    Service.instance().buscarUsuarioPorId(id);
+                    Servicio.get().buscarUsuarioPorId(id);
 
-            Service.instance()
+            Servicio.get()
                     .cambiarClave(
                             usuario,
                             claveActual,

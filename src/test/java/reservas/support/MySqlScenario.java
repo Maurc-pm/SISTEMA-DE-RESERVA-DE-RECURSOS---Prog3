@@ -3,6 +3,7 @@ package reservas.support;
 import org.mockito.MockedStatic;
 import reservas.data.MySqlPersistencia;
 import reservas.logic.Service;
+import reservas.presentation.Servicio;
 
 public final class MySqlScenario implements AutoCloseable {
     public final Service service;
@@ -16,6 +17,7 @@ public final class MySqlScenario implements AutoCloseable {
     public static MySqlScenario start(boolean resetSchema) throws Exception {
         if (resetSchema) TestDatabase.resetSchema();
         Service service = Service.crearParaPruebas(new MySqlPersistencia(TestDatabase.database()));
+        Servicio.set(service);
         MockedStatic<Service> serviceMock = org.mockito.Mockito.mockStatic(Service.class);
         serviceMock.when(Service::instance).thenReturn(service);
         return new MySqlScenario(service, serviceMock);
@@ -24,5 +26,6 @@ public final class MySqlScenario implements AutoCloseable {
     @Override
     public void close() {
         serviceMock.close();
+        Servicio.set(null);
     }
 }

@@ -1,7 +1,8 @@
 package reservas.presentation.login;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Sesion;
-import reservas.logic.Service;
 import reservas.logic.Usuario;
 
 public class Controller {
@@ -25,7 +26,7 @@ public class Controller {
             String clave = view.getClave();
 
             Usuario usuario =
-                    Service.instance()
+                    Servicio.get()
                             .login(id, clave);
 
             model.setCurrent(usuario);

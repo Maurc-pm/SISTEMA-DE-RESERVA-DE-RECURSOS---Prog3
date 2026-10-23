@@ -1,7 +1,8 @@
 package reservas.presentation.categorias;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Categoria;
-import reservas.logic.Service;
 
 import java.util.List;
 
@@ -38,15 +39,13 @@ public class Controller {
     }
 
     public void buscar() {
-
-        String descripcion =
-                view.getDescripcionBusqueda();
-
-        List<Categoria> resultado =
-                Service.instance()
-                        .buscarCategorias(descripcion);
-
-        model.setCategorias(resultado);
+        try {
+            String descripcion = view.getDescripcionBusqueda();
+            List<Categoria> resultado = Servicio.get().buscarCategorias(descripcion);
+            model.setCategorias(resultado);
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void guardar() {
@@ -74,7 +73,7 @@ public class Controller {
                         model.getCurrent().getId()
                 );
 
-                Service.instance()
+                Servicio.get()
                         .modificarCategoria(categoria);
 
                 view.mostrarMensaje(
@@ -83,7 +82,7 @@ public class Controller {
 
             } else {
 
-                Service.instance()
+                Servicio.get()
                         .crearCategoria(categoria);
 
                 view.mostrarMensaje(
@@ -120,7 +119,7 @@ public class Controller {
                 );
             }
 
-            Service.instance()
+            Servicio.get()
                     .eliminarCategoria(
                             actual.getId()
                     );
@@ -167,11 +166,11 @@ public class Controller {
     }
 
     private void cargarCategorias() {
-
-        model.setCategorias(
-                Service.instance()
-                        .listarCategorias()
-        );
+        try {
+            model.setCategorias(Servicio.get().listarCategorias());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void imprimir() {

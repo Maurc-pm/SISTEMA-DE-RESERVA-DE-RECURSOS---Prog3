@@ -1,7 +1,8 @@
 package reservas.presentation.actividades;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Reserva;
-import reservas.logic.Service;
 import reservas.logic.Celda;
 
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -74,7 +75,7 @@ public class Controller {
             }
 
             List<Reserva> reservas =
-                    Service.instance().listarReservas();
+                    Servicio.get().listarReservas();
 
             Celda[][] matriz =
                     construirMatriz(dias, reservas);
@@ -109,7 +110,7 @@ public class Controller {
                 dias.add(lunes.plusDays(i));
             }
 
-            List<Reserva> reservas = Service.instance().listarReservas();
+            List<Reserva> reservas = Servicio.get().listarReservas();
 
             Celda[][] matriz = construirMatriz(dias, reservas);
 

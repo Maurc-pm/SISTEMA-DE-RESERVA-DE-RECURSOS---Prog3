@@ -1,8 +1,9 @@
 package reservas.presentation.recursos;
 
+import reservas.presentation.Servicio;
+
 import reservas.logic.Categoria;
 import reservas.logic.Recurso;
-import reservas.logic.Service;
 
 import java.util.List;
 
@@ -62,11 +63,12 @@ public class Controller {
             return;
         }
 
-        List<Recurso> resultado =
-                Service.instance()
-                        .buscarRecursosPorCategoria(categoria);
-
-        model.setRecursos(resultado);
+        try {
+            List<Recurso> resultado = Servicio.get().buscarRecursosPorCategoria(categoria);
+            model.setRecursos(resultado);
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void guardar() {
@@ -113,7 +115,7 @@ public class Controller {
 
             if (editando) {
 
-                Service.instance()
+                Servicio.get()
                         .modificarRecurso(recurso);
 
                 view.mostrarMensaje(
@@ -122,7 +124,7 @@ public class Controller {
 
             } else {
 
-                Service.instance()
+                Servicio.get()
                         .crearRecurso(recurso);
 
                 view.mostrarMensaje(
@@ -159,7 +161,7 @@ public class Controller {
                 );
             }
 
-            Service.instance()
+            Servicio.get()
                     .eliminarRecurso(
                             actual.getId()
                     );
@@ -206,19 +208,19 @@ public class Controller {
     }
 
     private void cargarCategorias() {
-
-        model.setCategorias(
-                Service.instance()
-                        .listarCategorias()
-        );
+        try {
+            model.setCategorias(Servicio.get().listarCategorias());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     private void cargarRecursos() {
-
-        model.setRecursos(
-                Service.instance()
-                        .listarRecursos()
-        );
+        try {
+            model.setRecursos(Servicio.get().listarRecursos());
+        } catch (Exception ex) {
+            view.mostrarError(ex.getMessage());
+        }
     }
 
     public void imprimir() {

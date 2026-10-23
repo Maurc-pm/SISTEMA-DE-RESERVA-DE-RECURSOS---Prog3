@@ -2,6 +2,9 @@ package reservas;
 
 import reservas.logic.Sesion;
 import reservas.presentation.Icons;
+import reservas.presentation.Servicio;
+import reservas.client.ServiceProxy;
+import reservas.protocol.Protocolo;
 
 import javax.swing.*;
 
@@ -9,9 +12,33 @@ public class Application {
 
     public static void main(String[] args) {
 
+        String host = args.length > 0 ? args[0] : "localhost";
+        int puerto = args.length > 1 ? Integer.parseInt(args[1]) : Protocolo.PUERTO_POR_DEFECTO;
+
         SwingUtilities.invokeLater(() -> {
 
             try {
+
+                ServiceProxy proxy;
+                try {
+                    proxy = new ServiceProxy(host, puerto);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "No se pudo conectar al servidor en " + host + ":" + puerto,
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    System.exit(1);
+                    return;
+                }
+                Servicio.set(proxy);
+                proxy.agregarListenerDesconexion(() -> JOptionPane.showMessageDialog(
+                        null,
+                        "Se perdió la conexión con el servidor",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                ));
 
                 doLogin();
 

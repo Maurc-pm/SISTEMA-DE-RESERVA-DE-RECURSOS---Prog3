@@ -7,6 +7,7 @@ import reservas.ai.ReservaExtractorService;
 import reservas.data.Data;
 import reservas.data.Persistencia;
 import reservas.logic.*;
+import reservas.presentation.Servicio;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,6 +29,7 @@ public abstract class ServiceTestSupport {
         // Única reflexión sobre Service: construcción e inyección del adaptador externo.
         // No se prueban métodos privados ni se cambian campos final del singleton.
         service = Service.crearParaPruebas(persistencia);
+        Servicio.set(service);
         clearInvocations(persistencia);
         singleton = mockStatic(Service.class);
         singleton.when(Service::instance).thenReturn(service);
@@ -38,6 +40,7 @@ public abstract class ServiceTestSupport {
     @AfterEach
     final void liberarAislamiento() {
         Sesion.logout();
+        Servicio.set(null);
         if (time != null) time.close();
         if (singleton != null) singleton.close();
     }
