@@ -7,7 +7,9 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 
 import reservas.data.Data;
-import reservas.data.XmlStorage;
+import reservas.data.Database;
+import reservas.data.MySqlPersistencia;
+import reservas.data.Persistencia;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +18,18 @@ import java.time.LocalTime;
 
 public class Service {
 
-    private static final Service INSTANCE = new Service();
+    private static volatile Service INSTANCE;
 
     private final Data data;
+    private final Persistencia persistencia;
     private ReservaExtractorService reservaExtractorService;
 
-    private Service() {
+    private Service(Persistencia persistencia) {
 
         try {
 
-            Data dataCargada = XmlStorage.cargar();
+            this.persistencia = persistencia;
+            Data dataCargada = persistencia.cargar();
 
             if (dataCargada != null) {
 
@@ -37,28 +41,31 @@ public class Service {
                 // Primera ejecución
                 data = new Data();
 
-                cargarDatosIniciales();
-
-                XmlStorage.guardar(data);
             }
 
         } catch (Exception e) {
 
             throw new RuntimeException(
-                    "Error al cargar los datos XML",
+                    "Error al cargar los datos",
                     e
             );
         }
     }
     public static Service instance() {
-        return INSTANCE;
+        Service local = INSTANCE;
+        if (local == null) synchronized (Service.class) {
+            local = INSTANCE;
+            if (local == null) INSTANCE = local = new Service(new MySqlPersistencia(Database.desarrollo()));
+        }
+        return local;
     }
+    public static Service crearParaPruebas(Persistencia persistencia) { return new Service(persistencia); }
 
     // =========================================================
     // LOGIN
     // =========================================================
 
-    public Usuario login(String id, String clave) throws Exception {
+    public synchronized Usuario login(String id, String clave) throws Exception {
 
         if (id == null || id.trim().isEmpty()) {
             throw new Exception("El ID es requerido");
@@ -82,7 +89,7 @@ public class Service {
         throw new Exception("ID o clave incorrectos");
     }
     //Agregue esta para que tambien funcione con admins
-    public Usuario buscarUsuarioPorId(String id) throws Exception {
+    public synchronized Usuario buscarUsuarioPorId(String id) throws Exception {
 
         if (id == null || id.trim().isEmpty()) {
             throw new Exception("El ID es requerido");
@@ -99,7 +106,7 @@ public class Service {
         throw new Exception("Usuario no encontrado");
     }
 
-    public void cambiarClave(
+    public synchronized void cambiarClave(
             Usuario usuario,
             String claveActual,
             String claveNueva,
@@ -118,26 +125,25 @@ public class Service {
             throw new Exception("La nueva clave es requerida");
         }
 
-        if (!usuario.getClave().equals(claveActual)) {
-            throw new Exception("La clave actual es incorrecta");
-        }
-
         if (!claveNueva.equals(confirmarClave)) {
             throw new Exception(
                     "La clave nueva y la confirmación no coinciden"
             );
         }
 
-        usuario.setClave(claveNueva.trim());
-
-        guardarCambios();
+        Usuario existente = buscarUsuarioPorId(usuario.getId());
+        if (!existente.getClave().equals(claveActual)) throw new Exception("La clave actual es incorrecta");
+        Usuario actualizado = existente instanceof Funcionario f ? new Funcionario(f.getId(), claveNueva.trim(), f.getNombre(), f.getTelefono()) : new Usuario(existente.getId(), claveNueva.trim(), existente.getRol());
+        persistencia.actualizarUsuario(actualizado);
+        existente.setClave(actualizado.getClave());
+        usuario.setClave(actualizado.getClave());
     }
 
     // =========================================================
     // FUNCIONARIOS
     // =========================================================
 
-    public void crearFuncionario(
+    public synchronized void crearFuncionario(
             Funcionario funcionario
     ) throws Exception {
 
@@ -151,28 +157,17 @@ public class Service {
             );
         }
 
-        funcionario.setId(id);
-        funcionario.setNombre(
-                funcionario.getNombre().trim()
-        );
-        funcionario.setTelefono(
-                funcionario.getTelefono().trim()
-        );
-
-        /*
-         * Regla del proyecto:
-         * al crear un funcionario, su clave inicial
-         * debe ser igual a su ID.
-         */
-        funcionario.setClave(id);
-        funcionario.setRol(Usuario.FUNCIONARIO);
-
+        Funcionario nuevo = new Funcionario(id, id, funcionario.getNombre().trim(), funcionario.getTelefono().trim());
+        persistencia.insertarUsuario(nuevo);
+        funcionario.setId(nuevo.getId());
+        funcionario.setNombre(nuevo.getNombre());
+        funcionario.setTelefono(nuevo.getTelefono());
+        funcionario.setClave(nuevo.getClave());
+        funcionario.setRol(nuevo.getRol());
         data.getUsuarios().add(funcionario);
-
-        guardarCambios();
     }
 
-    public Funcionario buscarFuncionarioPorId(
+    public synchronized Funcionario buscarFuncionarioPorId(
             String id
     ) throws Exception {
 
@@ -194,7 +189,7 @@ public class Service {
         throw new Exception("Funcionario no encontrado");
     }
 
-    public List<Funcionario> buscarFuncionarios(
+    public synchronized List<Funcionario> buscarFuncionarios(
             String id,
             String nombre
     ) {
@@ -238,7 +233,7 @@ public class Service {
         return resultado;
     }
 
-    public List<Funcionario> listarFuncionarios() {
+    public synchronized List<Funcionario> listarFuncionarios() {
 
         List<Funcionario> resultado =
                 new ArrayList<>();
@@ -255,7 +250,7 @@ public class Service {
         return resultado;
     }
 
-    public void modificarFuncionario(
+    public synchronized void modificarFuncionario(
             Funcionario funcionario
     ) throws Exception {
 
@@ -266,27 +261,24 @@ public class Service {
                         funcionario.getId()
                 );
 
-        existente.setNombre(
-                funcionario.getNombre().trim()
-        );
-
-        existente.setTelefono(
-                funcionario.getTelefono().trim()
-        );
-
-        guardarCambios();
+        Funcionario actualizado = new Funcionario(existente.getId(), existente.getClave(), funcionario.getNombre().trim(), funcionario.getTelefono().trim());
+        persistencia.actualizarUsuario(actualizado);
+        existente.setNombre(actualizado.getNombre());
+        existente.setTelefono(actualizado.getTelefono());
+        funcionario.setNombre(actualizado.getNombre());
+        funcionario.setTelefono(actualizado.getTelefono());
     }
 
-    public void eliminarFuncionario(
+    public synchronized void eliminarFuncionario(
             String id
     ) throws Exception {
 
         Funcionario funcionario =
                 buscarFuncionarioPorId(id);
 
-        boolean eliminado =
-                data.getUsuarios()
-                        .remove(funcionario);
+        for (Reserva reserva : data.getReservas()) if (reserva.getFuncionario().equals(funcionario)) throw new Exception("No se puede eliminar el funcionario porque tiene reservas asociadas");
+        persistencia.eliminarUsuario(funcionario.getId());
+        boolean eliminado = data.getUsuarios().remove(funcionario);
 
         if (!eliminado) {
             throw new Exception(
@@ -294,33 +286,26 @@ public class Service {
             );
         }
 
-        guardarCambios();
     }
 
     // =========================================================
     // CATEGORÍAS
     // =========================================================
 
-    public void crearCategoria(
+    public synchronized void crearCategoria(
             Categoria categoria
     ) throws Exception {
 
         validarCategoria(categoria);
 
-        categoria.setDescripcion(
-                categoria.getDescripcion().trim()
-        );
-
-        categoria.setId(
-                generarIdCategoria()
-        );
-
+        Categoria nueva = new Categoria(generarIdCategoria(), categoria.getDescripcion().trim());
+        persistencia.insertarCategoria(nueva);
+        categoria.setDescripcion(nueva.getDescripcion());
+        categoria.setId(nueva.getId());
         data.getCategorias().add(categoria);
-
-        guardarCambios();
     }
 
-    public Categoria buscarCategoriaPorId(
+    public synchronized Categoria buscarCategoriaPorId(
             String id
     ) throws Exception {
 
@@ -347,7 +332,7 @@ public class Service {
         );
     }
 
-    public List<Categoria> buscarCategorias(
+    public synchronized List<Categoria> buscarCategorias(
             String descripcion
     ) {
 
@@ -376,13 +361,13 @@ public class Service {
         return resultado;
     }
 
-    public List<Categoria> listarCategorias() {
+    public synchronized List<Categoria> listarCategorias() {
         return new ArrayList<>(
                 data.getCategorias()
         );
     }
 
-    public void modificarCategoria(
+    public synchronized void modificarCategoria(
             Categoria categoria
     ) throws Exception {
 
@@ -393,16 +378,13 @@ public class Service {
                         categoria.getId()
                 );
 
-        existente.setDescripcion(
-                categoria
-                        .getDescripcion()
-                        .trim()
-        );
-
-        guardarCambios();
+        Categoria actualizada = new Categoria(existente.getId(), categoria.getDescripcion().trim());
+        persistencia.actualizarCategoria(actualizada);
+        existente.setDescripcion(actualizada.getDescripcion());
+        categoria.setDescripcion(actualizada.getDescripcion());
     }
 
-    public void eliminarCategoria(
+    public synchronized void eliminarCategoria(
             String id
     ) throws Exception {
 
@@ -426,17 +408,15 @@ public class Service {
             }
         }
 
-        data.getCategorias()
-                .remove(categoria);
-
-        guardarCambios();
+        persistencia.eliminarCategoria(categoria.getId());
+        data.getCategorias().remove(categoria);
     }
 
     // =========================================================
     // RECURSOS
     // =========================================================
 
-    public void crearRecurso(
+    public synchronized void crearRecurso(
             Recurso recurso
     ) throws Exception {
 
@@ -461,20 +441,15 @@ public class Service {
                                 .getId()
                 );
 
-        recurso.setId(id);
-        recurso.setCategoria(categoria);
-        recurso.setDescripcion(
-                recurso
-                        .getDescripcion()
-                        .trim()
-        );
-
+        Recurso nuevo = new Recurso(id, categoria, recurso.getDescripcion().trim());
+        persistencia.insertarRecurso(nuevo);
+        recurso.setId(nuevo.getId());
+        recurso.setCategoria(nuevo.getCategoria());
+        recurso.setDescripcion(nuevo.getDescripcion());
         data.getRecursos().add(recurso);
-
-        guardarCambios();
     }
 
-    public Recurso buscarRecursoPorId(
+    public synchronized Recurso buscarRecursoPorId(
             String id
     ) throws Exception {
 
@@ -501,13 +476,13 @@ public class Service {
         );
     }
 
-    public List<Recurso> listarRecursos() {
+    public synchronized List<Recurso> listarRecursos() {
         return new ArrayList<>(
                 data.getRecursos()
         );
     }
 
-    public List<Recurso> buscarRecursosPorCategoria(
+    public synchronized List<Recurso> buscarRecursosPorCategoria(
             Categoria categoria
     ) {
 
@@ -532,7 +507,7 @@ public class Service {
         return resultado;
     }
 
-    public void modificarRecurso(
+    public synchronized void modificarRecurso(
             Recurso recurso
     ) throws Exception {
 
@@ -550,17 +525,15 @@ public class Service {
                                 .getId()
                 );
 
+        Recurso actualizado = new Recurso(existente.getId(), categoria, recurso.getDescripcion().trim());
+        persistencia.actualizarRecurso(actualizado);
         existente.setCategoria(categoria);
-        existente.setDescripcion(
-                recurso
-                        .getDescripcion()
-                        .trim()
-        );
-
-        guardarCambios();
+        existente.setDescripcion(actualizado.getDescripcion());
+        recurso.setCategoria(categoria);
+        recurso.setDescripcion(actualizado.getDescripcion());
     }
 
-    public void eliminarRecurso(
+    public synchronized void eliminarRecurso(
             String id
     ) throws Exception {
 
@@ -571,16 +544,18 @@ public class Service {
          * Más adelante ampliaremos esta validación
          * considerando reservas activas.
          */
+        for (Reserva reserva : data.getReservas()) {
+            if (reserva.getRecursos().contains(recurso)) throw new Exception("No se puede eliminar el recurso porque tiene reservas asociadas");
+        }
+        persistencia.eliminarRecurso(recurso.getId());
         data.getRecursos().remove(recurso);
-
-        guardarCambios();
     }
 
     // =========================================================
     // MÉTODOS AUXILIARES
     // =========================================================
 
-    public ReservaExtraccion extraerReservaConIA(String frase) throws Exception {
+    public synchronized ReservaExtraccion extraerReservaConIA(String frase) throws Exception {
 
         if (frase == null || frase.trim().isEmpty()) {
             throw new Exception("Debe escribir una descripción de la reserva");
@@ -617,10 +592,6 @@ public class Service {
         }
 
         return reservaExtractorService;
-    }
-
-    private void guardarCambios() throws Exception {
-        XmlStorage.guardar(data);
     }
 
     private boolean existeUsuario(
@@ -798,29 +769,15 @@ public class Service {
     // DATOS INICIALES
     // =========================================================
 
-    private void cargarDatosIniciales() {
-
-        Usuario administrador =
-                new Usuario(
-                        "admin",
-                        "admin",
-                        Usuario.ADMINISTRADOR
-                );
-
-        data.getUsuarios()
-                .add(administrador);
-
-    }
-
     // =========================================================
 // RESERVAS
 // =========================================================
 
-    public List<Reserva> listarReservas() {
+    public synchronized List<Reserva> listarReservas() {
         return new ArrayList<>(data.getReservas());
     }
 
-    public List<Reserva> listarReservasFuncionario(Funcionario funcionario) {
+    public synchronized List<Reserva> listarReservasFuncionario(Funcionario funcionario) {
         List<Reserva> resultado = new ArrayList<>();
 
         for (Reserva reserva : data.getReservas()) {
@@ -869,7 +826,7 @@ public class Service {
         return null;
     }
 
-    public void crearReserva(
+    public synchronized void crearReserva(
             Reserva reserva,
             List<Categoria> categorias
     ) throws Exception {
@@ -925,12 +882,15 @@ public class Service {
             throw new Exception(mensaje.toString());
         }
 
-        reserva.setId(generarIdReserva());
+        String id = generarIdReserva();
+        Funcionario funcionario = buscarFuncionarioPorId(reserva.getFuncionario().getId());
+        Reserva nueva = new Reserva(id, funcionario, reserva.getActividad(), reserva.getFecha(), reserva.getHoraInicio(), reserva.getHoraFin(), recursosAsignados, Reserva.ACTIVA);
+        persistencia.insertarReserva(nueva);
+        reserva.setId(id);
+        reserva.setFuncionario(funcionario);
         reserva.setRecursos(recursosAsignados);
         reserva.setEstado(Reserva.ACTIVA);
         data.getReservas().add(reserva);
-
-        guardarCambios();
     }
 
     private String generarIdReserva() {
@@ -955,25 +915,30 @@ public class Service {
         return String.format("RES-%06d", mayor + 1);
     }
 
-    public void cancelarReserva(Reserva reserva) throws Exception {
+    public synchronized void cancelarReserva(Reserva reserva) throws Exception {
         if (reserva == null) {
             throw new Exception("Reserva requerida");
         }
 
-        if (!reserva.estaActiva()) {
+        Reserva existente = data.getReservas().stream()
+                .filter(almacenada -> almacenada.getId().equals(reserva.getId()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("Reserva requerida"));
+        if (!existente.estaActiva()) {
             throw new Exception("La reserva ya está cancelada");
         }
 
         LocalDate hoy = LocalDate.now();
         LocalTime ahora = LocalTime.now();
 
-        boolean esFutura = reserva.getFecha().isAfter(hoy) || (reserva.getFecha().equals(hoy) && reserva.getHoraInicio().isAfter(ahora));
+        boolean esFutura = existente.getFecha().isAfter(hoy) || (existente.getFecha().equals(hoy) && existente.getHoraInicio().isAfter(ahora));
 
         if (!esFutura) {throw new Exception("Solo se pueden cancelar reservas futuras");
         }
 
+        if (!existente.estaActiva()) throw new Exception("La reserva ya estÃ¡ cancelada");
+        persistencia.actualizarEstadoReserva(existente.getId(), Reserva.CANCELADA);
+        existente.setEstado(Reserva.CANCELADA);
         reserva.setEstado(Reserva.CANCELADA);
-
-        guardarCambios();
     }
 }

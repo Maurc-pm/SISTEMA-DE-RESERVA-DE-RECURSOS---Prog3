@@ -8,6 +8,7 @@ import reservas.support.ServiceTestSupport;
 import reservas.support.FixedTime;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class RecursoServiceTest extends ServiceTestSupport {
     @Test void crearRecursoNormalizaYUsaCategoriaCanonica() throws Exception {
@@ -81,12 +82,16 @@ class RecursoServiceTest extends ServiceTestSupport {
                 () -> service.eliminarRecurso("ausente")).getMessage());
         assertThrows(Exception.class, () -> service.buscarRecursoPorId("ausente"));
     }
-    @Test void eliminacionActualPermiteRecursoConReservaActiva() throws Exception {
+    @Test void eliminarRecursoConReservaBloqueaLaEliminacion() throws Exception {
         Funcionario f = funcionario("F1", "Ana"); Categoria c = categoria("Sala");
         Recurso r = recurso("R1", c);
         Reserva reserva = reserva(f, FixedTime.TODAY.plusDays(1), "08:00", "09:00");
-        service.crearReserva(reserva, List.of(c)); service.eliminarRecurso("R1");
-        assertTrue(service.listarRecursos().isEmpty());
+        service.crearReserva(reserva, List.of(c));
+        clearInvocations(persistencia);
+        assertEquals("No se puede eliminar el recurso porque tiene reservas asociadas",
+                assertThrows(Exception.class, () -> service.eliminarRecurso("R1")).getMessage());
+        assertEquals(List.of(r), service.listarRecursos());
+        verify(persistencia, never()).eliminarRecurso("R1");
         assertEquals(List.of(r), reserva.getRecursos()); // Limitación actual: referencia histórica en memoria.
     }
 }

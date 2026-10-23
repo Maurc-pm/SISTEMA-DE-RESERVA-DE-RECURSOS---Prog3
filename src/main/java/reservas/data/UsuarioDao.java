@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface UsuarioDao {
     Usuario buscarPorId(String id) throws SQLException;
+    List<Usuario> listar() throws SQLException;
     List<Funcionario> listarFuncionarios() throws SQLException;
     void insertar(Usuario usuario) throws SQLException;
     void actualizar(Usuario usuario) throws SQLException;

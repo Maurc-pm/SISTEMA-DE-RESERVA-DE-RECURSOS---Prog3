@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import reservas.data.XmlStorage;
 import reservas.support.FixedTime;
 import reservas.support.ServiceTestSupport;
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ class ReservaServiceTest extends ServiceTestSupport {
 
     @BeforeEach void prepararRecursos() throws Exception {
         ana = funcionario("F1", "Ana"); sala = categoria("Sala"); r1 = recurso("R1", sala);
-        storage.clearInvocations();
+        clearInvocations(persistencia);
     }
     private Reserva nueva(String inicio, String fin) { return reserva(ana, fecha, inicio, fin); }
     private Reserva crear(String inicio, String fin) throws Exception {
@@ -34,18 +33,18 @@ class ReservaServiceTest extends ServiceTestSupport {
         assertEquals("RES-000001", r.getId()); assertTrue(r.estaActiva());
         assertEquals(List.of(r1), r.getRecursos());
         assertEquals(List.of(r), service.listarReservasFuncionario(ana));
-        storage.verify(() -> XmlStorage.guardar(data), times(1));
+        verify(persistencia).insertarReserva(any(Reserva.class));
     }
     @ParameterizedTest(name = "ocupada 08:00-10:00, solicitud {0}-{1}")
     @CsvSource({"08:00,10:00", "08:30,09:30", "07:00,11:00", "07:30,08:30", "09:30,10:30"})
     void reservasSolapadasNoUsanMismoRecurso(String inicio, String fin) throws Exception {
         Reserva existente = crear("08:00", "10:00");
-        Reserva intento = nueva(inicio, fin); storage.clearInvocations();
+        Reserva intento = nueva(inicio, fin); clearInvocations(persistencia);
         assertTrue(assertThrows(Exception.class, () -> service.crearReserva(intento, List.of(sala)))
                 .getMessage().contains("No hay recursos disponibles"));
         assertEquals(List.of(existente), service.listarReservas());
         assertTrue(intento.getRecursos().isEmpty()); assertEquals("", intento.getId());
-        storage.verifyNoInteractions();
+        verifyNoInteractions(persistencia);
     }
     @ParameterizedTest @CsvSource({"10:00,11:00", "07:00,08:00"})
     void reservasConBordeExactoNoSeSolapan(String inicio, String fin) throws Exception {
@@ -70,10 +69,10 @@ class ReservaServiceTest extends ServiceTestSupport {
         assertEquals(List.of(r1), otra.getRecursos());
     }
     @Test void categoriaSinRecursosInformaCategoriaYNoGuarda() throws Exception {
-        Categoria vacia = categoria("Proyectores"); storage.clearInvocations();
+        Categoria vacia = categoria("Proyectores"); clearInvocations(persistencia);
         assertEquals("No hay recursos disponibles para:\n- Proyectores\n", assertThrows(Exception.class,
                 () -> service.crearReserva(nueva("08:00", "09:00"), List.of(vacia))).getMessage());
-        assertTrue(service.listarReservas().isEmpty()); storage.verifyNoInteractions();
+        assertTrue(service.listarReservas().isEmpty()); verifyNoInteractions(persistencia);
     }
     @Test void multiplesCategoriasAsignanExactamenteUnRecursoDeCadaUna() throws Exception {
         Categoria equipo = categoria("Equipo"); Recurso proyector = recurso("P1", equipo);
@@ -86,11 +85,11 @@ class ReservaServiceTest extends ServiceTestSupport {
     void reservaConVariasCategoriasEsAtomicaIndependientementeDelOrden(boolean disponiblePrimero) throws Exception {
         Categoria sinRecursos = categoria("Equipo"); Reserva intento = nueva("08:00", "09:00");
         List<Categoria> categorias = disponiblePrimero ? List.of(sala, sinRecursos) : List.of(sinRecursos, sala);
-        storage.clearInvocations();
+        clearInvocations(persistencia);
         assertThrows(Exception.class, () -> service.crearReserva(intento, categorias));
         assertTrue(service.listarReservas().isEmpty());
         assertTrue(intento.getRecursos().isEmpty()); assertEquals("", intento.getId());
-        storage.verifyNoInteractions();
+        verifyNoInteractions(persistencia);
         Reserva posterior = crear("08:00", "09:00");
         assertEquals(List.of(r1), posterior.getRecursos()); assertEquals("RES-000001", posterior.getId());
     }
@@ -98,7 +97,7 @@ class ReservaServiceTest extends ServiceTestSupport {
     void intervaloInvalidoEsRechazado(String inicio, String fin) {
         assertEquals("La hora de inicio debe ser anterior a la hora final", assertThrows(Exception.class,
                 () -> crear(inicio, fin)).getMessage());
-        assertTrue(service.listarReservas().isEmpty()); storage.verifyNoInteractions();
+        assertTrue(service.listarReservas().isEmpty()); verifyNoInteractions(persistencia);
     }
     @ParameterizedTest @NullAndEmptySource @ValueSource(strings = {" "})
     void actividadVaciaEsRechazada(String actividad) {
@@ -144,10 +143,10 @@ class ReservaServiceTest extends ServiceTestSupport {
         assertEquals(List.of(ajena), service.listarReservasFuncionario(otro));
     }
     @Test void cancelarReservaFuturaLiberaRecursosYPersisteEstado() throws Exception {
-        Reserva r = crear("08:00", "10:00"); storage.clearInvocations();
+        Reserva r = crear("08:00", "10:00"); clearInvocations(persistencia);
         service.cancelarReserva(r);
         assertFalse(r.estaActiva()); assertEquals(Reserva.CANCELADA, r.getEstado());
-        storage.verify(() -> XmlStorage.guardar(data), times(1));
+        verify(persistencia).actualizarEstadoReserva(r.getId(), Reserva.CANCELADA);
         Reserva reemplazo = crear("08:00", "10:00");
         assertEquals(List.of(r1), reemplazo.getRecursos());
         assertEquals(2, service.listarReservasFuncionario(ana).size());
@@ -155,21 +154,33 @@ class ReservaServiceTest extends ServiceTestSupport {
     @ParameterizedTest @CsvSource({"0,11:00,13:00", "0,12:00,13:00", "-1,13:00,14:00"})
     void noSeCancelaReservaIniciadaExactaOPasada(int dias, String inicio, String fin) throws Exception {
         Reserva r = reserva(ana, FixedTime.TODAY.plusDays(dias), inicio, fin);
-        service.crearReserva(r, List.of(sala)); storage.clearInvocations();
+        service.crearReserva(r, List.of(sala)); clearInvocations(persistencia);
         assertEquals("Solo se pueden cancelar reservas futuras", assertThrows(Exception.class,
                 () -> service.cancelarReserva(r)).getMessage());
-        assertTrue(r.estaActiva()); storage.verifyNoInteractions();
+        assertTrue(r.estaActiva()); verifyNoInteractions(persistencia);
     }
     @Test void sePuedeCancelarHoySiAunNoEmpieza() throws Exception {
         Reserva r = reserva(ana, FixedTime.TODAY, "12:01", "13:00"); service.crearReserva(r, List.of(sala));
         assertDoesNotThrow(() -> service.cancelarReserva(r)); assertFalse(r.estaActiva());
     }
     @Test void noSeCancelaDosVecesNiReservaNula() throws Exception {
-        Reserva r = crear("08:00", "09:00"); service.cancelarReserva(r); storage.clearInvocations();
+        Reserva r = crear("08:00", "09:00"); service.cancelarReserva(r); clearInvocations(persistencia);
         assertEquals("La reserva ya está cancelada", assertThrows(Exception.class,
                 () -> service.cancelarReserva(r)).getMessage());
         assertEquals("Reserva requerida", assertThrows(Exception.class,
                 () -> service.cancelarReserva(null)).getMessage());
-        storage.verifyNoInteractions();
+        verifyNoInteractions(persistencia);
+    }
+
+    @Test void falloDePersistenciaAlCrearReservaNoAlteraCacheNiReservaRecibida() throws Exception {
+        Reserva intento = nueva("08:00", "09:00");
+        doThrow(new Exception("fallo de persistencia"))
+                .when(persistencia).insertarReserva(any(Reserva.class));
+
+        assertEquals("fallo de persistencia", assertThrows(Exception.class,
+                () -> service.crearReserva(intento, List.of(sala))).getMessage());
+        assertTrue(service.listarReservas().isEmpty());
+        assertEquals("", intento.getId());
+        assertTrue(intento.getRecursos().isEmpty());
     }
 }

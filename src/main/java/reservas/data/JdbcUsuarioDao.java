@@ -30,6 +30,17 @@ public class JdbcUsuarioDao implements UsuarioDao {
     }
 
     @Override
+    public List<Usuario> listar() throws SQLException {
+        List<Usuario> usuarios = new ArrayList<>();
+        try (Connection connection = database.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT id, clave, rol, nombre, telefono FROM usuario ORDER BY id");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) usuarios.add(mapear(resultSet));
+        }
+        return usuarios;
+    }
+
+    @Override
     public List<Funcionario> listarFuncionarios() throws SQLException {
         String sql = "SELECT id, clave, rol, nombre, telefono FROM usuario WHERE rol = ? ORDER BY id";
         List<Funcionario> funcionarios = new ArrayList<>();

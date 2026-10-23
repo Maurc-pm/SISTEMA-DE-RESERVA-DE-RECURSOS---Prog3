@@ -5,7 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import reservas.support.ServiceTestSupport;
-import reservas.data.XmlStorage;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -41,19 +40,19 @@ class AuthServiceTest extends ServiceTestSupport {
     }
     @Test void cambiarClaveInvalidaAnteriorYPermiteNuevoLogin() throws Exception {
         Funcionario f = funcionario("F1", "Ana");
-        storage.clearInvocations();
+        clearInvocations(persistencia);
         service.cambiarClave(f, "F1", "nueva", "nueva");
         assertSame(f, service.login("F1", "nueva"));
         assertThrows(Exception.class, () -> service.login("F1", "F1"));
-        storage.verify(() -> XmlStorage.guardar(data), times(1));
+        verify(persistencia).actualizarUsuario(f);
     }
     @Test void cambiarClaveActualIncorrectaNoModificaNiPersiste() throws Exception {
         Funcionario f = funcionario("F1", "Ana");
-        storage.clearInvocations();
+        clearInvocations(persistencia);
         assertEquals("La clave actual es incorrecta", assertThrows(Exception.class,
                 () -> service.cambiarClave(f, "mal", "nueva", "nueva")).getMessage());
         assertSame(f, service.login("F1", "F1"));
-        storage.verifyNoInteractions();
+        verifyNoInteractions(persistencia);
     }
     @Test void cambiarClaveConConfirmacionDiferenteNoModifica() throws Exception {
         Funcionario f = funcionario("F1", "Ana");

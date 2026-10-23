@@ -5,38 +5,34 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import reservas.ai.ReservaExtractorService;
 import reservas.data.Data;
-import reservas.data.XmlStorage;
+import reservas.data.Persistencia;
 import reservas.logic.*;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import static org.mockito.Mockito.*;
 
-/** XML se intercepta ANTES de inicializar el singleton. Cada prueba recibe otro Data/Service. */
+/** Cada prueba recibe otro Data y Service aislados. */
 public abstract class ServiceTestSupport {
     protected Data data;
     protected Service service;
-    protected MockedStatic<XmlStorage> storage;
+    protected Persistencia persistencia = mock(Persistencia.class);
     private MockedStatic<Service> singleton;
     private FixedTime time;
 
     @BeforeEach
     final void aislarServicio() throws Exception {
         data = new Data();
-        storage = mockStatic(XmlStorage.class);
-        storage.when(XmlStorage::cargar).thenReturn(data);
+        when(persistencia.cargar()).thenReturn(data);
         // Única reflexión sobre Service: construcción e inyección del adaptador externo.
         // No se prueban métodos privados ni se cambian campos final del singleton.
-        Constructor<Service> constructor = Service.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        service = constructor.newInstance();
+        service = Service.crearParaPruebas(persistencia);
+        clearInvocations(persistencia);
         singleton = mockStatic(Service.class);
         singleton.when(Service::instance).thenReturn(service);
         time = new FixedTime();
         Sesion.logout();
-        storage.clearInvocations();
     }
 
     @AfterEach
@@ -44,7 +40,6 @@ public abstract class ServiceTestSupport {
         Sesion.logout();
         if (time != null) time.close();
         if (singleton != null) singleton.close();
-        if (storage != null) storage.close();
     }
 
     protected void extractor(ReservaExtractorService extractor) throws Exception {

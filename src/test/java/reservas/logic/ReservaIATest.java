@@ -34,6 +34,6 @@ class ReservaIATest extends ServiceTestSupport {
         assertEquals("Sin servicio", assertThrows(IllegalStateException.class,
                 () -> service.extraerReservaConIA("Reservar sala")).getMessage());
         assertTrue(service.listarReservas().isEmpty());
-        storage.verifyNoInteractions();
+        verifyNoInteractions(persistencia);
     }
 }

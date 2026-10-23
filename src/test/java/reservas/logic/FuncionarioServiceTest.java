@@ -8,6 +8,7 @@ import reservas.support.ServiceTestSupport;
 import reservas.support.FixedTime;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class FuncionarioServiceTest extends ServiceTestSupport {
     @Test void crearFuncionarioNormalizaDatosAsignaClaveIdYRol() throws Exception {
@@ -99,13 +100,15 @@ class FuncionarioServiceTest extends ServiceTestSupport {
         assertThrows(Exception.class, () -> service.buscarUsuarioPorId("F1"));
         assertThrows(Exception.class, () -> service.login("F1", "F1"));
     }
-    @Test void eliminacionActualNoRestringeReservasAsociadas() throws Exception {
+    @Test void eliminarFuncionarioConReservasBloqueaLaEliminacion() throws Exception {
         Funcionario f = funcionario("F1", "Ana");
         Categoria c = categoria("Sala"); recurso("R1", c);
         Reserva r = reserva(f, FixedTime.TODAY.plusDays(1), "08:00", "09:00");
         service.crearReserva(r, List.of(c));
-        service.eliminarFuncionario("F1");
-        assertTrue(service.listarFuncionarios().isEmpty());
-        assertEquals(List.of(r), service.listarReservas()); // Caracteriza la regla actual, no integridad XML.
+        clearInvocations(persistencia);
+        assertEquals("No se puede eliminar el funcionario porque tiene reservas asociadas",
+                assertThrows(Exception.class, () -> service.eliminarFuncionario("F1")).getMessage());
+        assertEquals(List.of(f), service.listarFuncionarios());
+        verify(persistencia, never()).eliminarUsuario("F1");
     }
 }
