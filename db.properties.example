@@ -1,0 +1,6 @@
+# Copie este archivo como db.properties y escriba la clave real.
+# db.properties NO se sube a GitHub.
+db.url=jdbc:mysql://localhost:3306/reservas_db
+db.test.url=jdbc:mysql://localhost:3306/reservas_test
+db.user=reservas_app
+db.password=CAMBIAR
