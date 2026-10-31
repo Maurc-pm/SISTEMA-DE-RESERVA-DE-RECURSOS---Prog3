@@ -158,7 +158,9 @@
             <children>
               <component id="11dc8" class="javax.swing.JTable" binding="funcionariosTable">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <name value="funcionariosTable"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
