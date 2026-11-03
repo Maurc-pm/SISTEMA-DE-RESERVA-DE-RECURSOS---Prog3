@@ -1,0 +1,299 @@
+package reservas.presentation.funcionarios;
+
+import reservas.presentation.Icons;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+public class View implements PropertyChangeListener {
+
+    private JPanel panel;
+
+    private JPanel busquedaPanel;
+    private JTextField idBusquedaFld;
+    private JTextField nombreBusquedaFld;
+    private JButton buscarBtn;
+
+    private JPanel funcionarioPanel;
+    private JTextField idFld;
+    private JTextField nombreFld;
+    private JTextField telefonoFld;
+    private JButton guardarBtn;
+    private JButton borrarBtn;
+    private JButton limpiarBtn;
+
+    private JPanel listadoPanel;
+    private JTable funcionariosTable;
+
+    private JButton imprimirBtn;
+
+    private Model model;
+
+    public View() {
+
+        funcionariosTable.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION
+        );
+
+        Icons.set(buscarBtn, "search.png");
+        Icons.set(guardarBtn, "save.png");
+        Icons.set(borrarBtn, "delete.png");
+        Icons.set(limpiarBtn, "clear.png");
+        Icons.set(imprimirBtn, "pdf.png");
+    }
+
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    public void setModel(Model model) {
+
+        if (this.model != null) {
+            this.model.removePropertyChangeListener(this);
+        }
+
+        this.model = model;
+
+        if (this.model != null) {
+
+            this.model.addPropertyChangeListener(this);
+
+            actualizarFuncionario();
+            actualizarTabla();
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        switch (evt.getPropertyName()) {
+
+            case Model.CURRENT:
+                actualizarFuncionario();
+                break;
+
+            case Model.FUNCIONARIOS:
+                actualizarTabla();
+                break;
+        }
+    }
+
+    private void actualizarFuncionario() {
+
+        if (model == null || model.getCurrent() == null) {
+            return;
+        }
+
+        idFld.setText(
+                model.getCurrent().getId()
+        );
+
+        nombreFld.setText(
+                model.getCurrent().getNombre()
+        );
+
+        telefonoFld.setText(
+                model.getCurrent().getTelefono()
+        );
+    }
+
+    private void actualizarTabla() {
+
+        if (model == null) {
+            return;
+        }
+
+        int[] columns = {
+                TableModel.ID,
+                TableModel.NOMBRE,
+                TableModel.TELEFONO
+        };
+
+        funcionariosTable.setModel(
+                new TableModel(
+                        columns,
+                        model.getFuncionarios()
+                )
+        );
+    }
+
+    public void setController(Controller controller) {
+
+        // Botón Buscar
+        buscarBtn.addActionListener(
+                e -> controller.buscar()
+        );
+
+        // Botón Guardar
+        guardarBtn.addActionListener(
+                e -> controller.guardar()
+        );
+
+        // Botón Borrar
+        borrarBtn.addActionListener(
+                e -> controller.borrar()
+        );
+
+        // Botón Limpiar
+        limpiarBtn.addActionListener(
+                e -> controller.limpiar()
+        );
+
+        // Botón Imprimir PDF
+        imprimirBtn.addActionListener(
+                e -> controller.imprimir()
+        );
+
+        // Selección de una fila de la tabla
+        funcionariosTable
+                .getSelectionModel()
+                .addListSelectionListener(e -> {
+
+                    if (!e.getValueIsAdjusting()) {
+
+                        int fila =
+                                funcionariosTable.getSelectedRow();
+
+                        controller.seleccionar(fila);
+                    }
+                });
+    }
+
+    public String getIdBusqueda() {
+        return idBusquedaFld.getText().trim();
+    }
+
+    public String getNombreBusqueda() {
+        return nombreBusquedaFld.getText().trim();
+    }
+
+    public String getIdFuncionario() {
+        return idFld.getText().trim();
+    }
+
+    public String getNombreFuncionario() {
+        return nombreFld.getText().trim();
+    }
+
+    public String getTelefonoFuncionario() {
+        return telefonoFld.getText().trim();
+    }
+
+    public void mostrarMensaje(String mensaje) {
+
+        JOptionPane.showMessageDialog(
+                panel,
+                mensaje,
+                "Sistema de Reservas",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    public void mostrarError(String mensaje) {
+
+        JOptionPane.showMessageDialog(
+                panel,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public void limpiarSeleccionTabla() {
+        funcionariosTable.clearSelection();
+    }
+
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        panel = new JPanel();
+        panel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
+        panel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        busquedaPanel = new JPanel();
+        busquedaPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        panel.add(busquedaPanel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        busquedaPanel.setBorder(BorderFactory.createTitledBorder(null, "Búsqueda", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label1 = new JLabel();
+        label1.setText("ID:");
+        busquedaPanel.add(label1);
+        idBusquedaFld = new JTextField();
+        idBusquedaFld.setColumns(10);
+        idBusquedaFld.setText("");
+        busquedaPanel.add(idBusquedaFld);
+        final JLabel label2 = new JLabel();
+        label2.setText("Nombre");
+        busquedaPanel.add(label2);
+        nombreBusquedaFld = new JTextField();
+        nombreBusquedaFld.setColumns(15);
+        busquedaPanel.add(nombreBusquedaFld);
+        buscarBtn = new JButton();
+        buscarBtn.setText("Buscar");
+        busquedaPanel.add(buscarBtn);
+        funcionarioPanel = new JPanel();
+        funcionarioPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(funcionarioPanel, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        funcionarioPanel.setBorder(BorderFactory.createTitledBorder(null, "Funcionario", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label3 = new JLabel();
+        label3.setText("ID:");
+        funcionarioPanel.add(label3, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Teléfono:");
+        funcionarioPanel.add(label4, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        label5.setText("Nombre");
+        funcionarioPanel.add(label5, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        guardarBtn = new JButton();
+        guardarBtn.setText("Guardar");
+        funcionarioPanel.add(guardarBtn, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        borrarBtn = new JButton();
+        borrarBtn.setText("Borrar");
+        funcionarioPanel.add(borrarBtn, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        limpiarBtn = new JButton();
+        limpiarBtn.setText("Limpiar");
+        funcionarioPanel.add(limpiarBtn, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        idFld = new JTextField();
+        idFld.setColumns(10);
+        funcionarioPanel.add(idFld, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        nombreFld = new JTextField();
+        nombreFld.setColumns(20);
+        funcionarioPanel.add(nombreFld, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        telefonoFld = new JTextField();
+        telefonoFld.setColumns(12);
+        funcionarioPanel.add(telefonoFld, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        listadoPanel = new JPanel();
+        listadoPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(listadoPanel, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        listadoPanel.setBorder(BorderFactory.createTitledBorder(null, "Listado", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        listadoPanel.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        funcionariosTable = new JTable();
+        funcionariosTable.setName("funcionariosTable");
+        scrollPane1.setViewportView(funcionariosTable);
+        imprimirBtn = new JButton();
+        imprimirBtn.setText("Imprimir");
+        panel.add(imprimirBtn, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panel;
+    }
+}
