@@ -15,6 +15,17 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+* Proyecto 2 Reserva de Recursos
+* Integrantes:
+* Lorenzo Aguilar Garro
+* Yoel Gustavo García Rodríguez
+* Jose Mauricio Ramirez Chinchilla
+* Link del repositorio:
+* https://github.com/Maurc-pm/SISTEMA-DE-RESERVA-DE-RECURSOS---Prog3.git
+*
+* */
+
 public class Application {
 
     public static void main(String[] args) {
