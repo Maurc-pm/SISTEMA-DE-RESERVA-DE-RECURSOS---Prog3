@@ -1,0 +1,10 @@
+# Copie este archivo como db.properties (en la raiz del proyecto) y ajuste los valores.
+# db.properties NO se sube al repositorio (esta en .gitignore).
+#
+# Base de datos que usa el Backend (crearla con database/reservas.sql)
+db.url=jdbc:mysql://localhost:3306/reservas_db
+# Base de datos para las pruebas de integracion (mvn verify).
+# Debe llamarse reservas_test; las pruebas borran y recrean sus tablas.
+db.test.url=jdbc:mysql://localhost:3306/reservas_test
+db.user=reservas
+db.password=CAMBIAR_CLAVE

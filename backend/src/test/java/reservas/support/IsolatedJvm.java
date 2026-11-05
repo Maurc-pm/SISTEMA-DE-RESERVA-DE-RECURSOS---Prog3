@@ -40,7 +40,7 @@ public final class IsolatedJvm {
         }
     }
 
-    /** Se llama antes de inicializar Service/XmlStorage en el proceso hijo. */
+    /** Se llama antes de inicializar Service en el proceso hijo. */
     public static void assertDirectory(String expected) throws Exception {
         assertEquals(Path.of(expected).toRealPath(), Path.of("").toRealPath());
         assertTrue(java.awt.GraphicsEnvironment.isHeadless(), "Nunca abrir visores o ventanas en integración");

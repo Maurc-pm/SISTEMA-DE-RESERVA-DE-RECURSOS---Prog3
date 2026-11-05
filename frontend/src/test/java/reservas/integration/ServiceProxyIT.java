@@ -116,6 +116,23 @@ class ServiceProxyIT {
         assertTrue(error.getMessage().contains("conexión") || error.getMessage().contains("respondió"));
     }
 
+    @Test
+    void estadisticasSeCalculanEnElBackendYViajanPorElProxy() throws Exception {
+        proxyA.crearReserva(reserva("Reunion"), List.of(categoria));
+        LocalDate dia = LocalDate.now().plusDays(5);
+
+        var recursos = proxyB.estadisticaRecursosPorCategoria(dia.minusDays(1), dia.plusDays(1));
+        assertEquals(1, recursos.get("Sala"));
+
+        var semanas = proxyB.estadisticaActividadesPorSemana(dia, dia);
+        assertEquals(1, semanas.size());
+        assertEquals(1, semanas.values().iterator().next());
+
+        Exception error = assertThrows(Exception.class,
+                () -> proxyB.estadisticaRecursosPorCategoria(dia, dia.minusDays(1)));
+        assertEquals("La fecha desde no puede ser posterior a la fecha hasta", error.getMessage());
+    }
+
     private ServiceProxy proxy() throws Exception {
         return new ServiceProxy("127.0.0.1", server.getPuerto());
     }
