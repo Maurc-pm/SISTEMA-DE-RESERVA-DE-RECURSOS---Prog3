@@ -2,18 +2,14 @@
 package reservas;
 
 import reservas.logic.Sesion;
-import reservas.logic.Reserva;
+import reservas.logic.Usuario;
 import reservas.presentation.Icons;
 import reservas.presentation.Servicio;
 import reservas.client.ServiceProxy;
 import reservas.protocol.Protocolo;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
 
 /*
 * Proyecto 2 Reserva de Recursos
@@ -107,188 +103,36 @@ public class Application {
 
     private static void doRun() {
 
-        JFrame window = new JFrame("Sistema de Reservas");
+        Usuario usuario = Sesion.getUsuario();
+
+        JFrame window = new JFrame(
+                "SISTEMA DE RESERVAS - " + usuario.getId()
+                        + " (" + usuario.getRol() + ")"
+        );
 
         Icons.setWindowIcon(window, "icon.png");
 
         JTabbedPane tabs = new JTabbedPane();
 
         // =================================
-        // PANEL DE ALERTAS
+        // ÁREA DE ALERTAS (MVC)
         // =================================
 
-        JPanel panelAlertas = new JPanel(new BorderLayout());
+        reservas.presentation.alertas.View alertasView =
+                new reservas.presentation.alertas.View();
 
-        panelAlertas.setBorder(
-                BorderFactory.createTitledBorder("Alertas")
-        );
+        reservas.presentation.alertas.Model alertasModel =
+                new reservas.presentation.alertas.Model();
 
-        panelAlertas.setPreferredSize(new Dimension(320, 0));
+        reservas.presentation.alertas.Controller alertasController =
+                new reservas.presentation.alertas.Controller(
+                        alertasView,
+                        alertasModel
+                );
 
-        DefaultTableModel modeloAlertas = new DefaultTableModel(
-                new Object[]{"Actividad", "Ver", "Descartar"},
-                0
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 1 || column == 2;
-            }
-        };
-
-        JTable tablaAlertas = new JTable(modeloAlertas);
-
-        tablaAlertas.setRowHeight(35);
-        tablaAlertas.setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION
-        );
-
-        tablaAlertas.getColumnModel()
-                .getColumn(0).setPreferredWidth(190);
-
-        tablaAlertas.getColumnModel()
-                .getColumn(1).setPreferredWidth(55);
-
-        tablaAlertas.getColumnModel()
-                .getColumn(2).setPreferredWidth(75);
-
-        // Ícono para VER
-        tablaAlertas.getColumnModel()
-                .getColumn(1)
-                .setCellRenderer((table, value, selected, focus, row, column) -> {
-
-                    JButton boton = new JButton();
-                    Icons.set(boton, "ver.png");
-
-                    boton.setToolTipText("Ver reserva");
-                    boton.setBorderPainted(false);
-                    boton.setContentAreaFilled(false);
-                    boton.setFocusPainted(false);
-
-                    return boton;
-                });
-
-// Ícono para DESCARTAR
-        tablaAlertas.getColumnModel()
-                .getColumn(2)
-                .setCellRenderer((table, value, selected, focus, row, column) -> {
-
-                    JButton boton = new JButton();
-                    Icons.set(boton, "descartar.png");
-
-                    boton.setToolTipText("Descartar notificación");
-                    boton.setBorderPainted(false);
-                    boton.setContentAreaFilled(false);
-                    boton.setFocusPainted(false);
-
-                    return boton;
-                });
-
-        List<Reserva> reservasNotificadas = new ArrayList<>();
-
-        ServiceProxy proxy = (ServiceProxy) Servicio.get();
-
-        // =================================
-        // RECEPCIÓN DE NOTIFICACIONES
-        // =================================
-
-        proxy.agregarListenerReservas(reserva -> {
-
-            reservasNotificadas.add(reserva);
-
-            String funcionario =
-                    String.valueOf(reserva.getFuncionario());
-
-            modeloAlertas.addRow(new Object[]{
-                    funcionario + " - " + reserva.getActividad(),
-                    "Ver",
-                    "Descartar"
-            });
-        });
-
-        // =================================
-        // ACCIONES DE LA TABLA
-        // =================================
-
-        tablaAlertas.addMouseListener(
-                new java.awt.event.MouseAdapter() {
-
-                    @Override
-                    public void mouseClicked(java.awt.event.MouseEvent e) {
-
-                        int fila = tablaAlertas.rowAtPoint(e.getPoint());
-
-                        int columna = tablaAlertas.columnAtPoint(e.getPoint());
-
-                        if (fila < 0 || columna < 1) {
-                            return;
-                        }
-
-                        Reserva reserva = reservasNotificadas.get(fila);
-
-                        // VER DETALLES
-                        if (columna == 1) {
-
-                            StringBuilder detalle = new StringBuilder();
-
-                            detalle.append("ID: ").append(reserva.getId());
-                            detalle.append("\nFuncionario: ").append(reserva.getFuncionario());
-                            detalle.append("\nActividad: ").append(reserva.getActividad());
-                            detalle.append("\nFecha: ").append(reserva.getFecha());
-                            detalle.append("\nHora: ")
-                                    .append(reserva.getHoraInicio())
-                                    .append(" - ")
-                                    .append(reserva.getHoraFin());
-                            detalle.append("\nEstado: ").append(reserva.getEstado());
-
-                            detalle.append("\nRecursos reservados:");
-
-                            if (reserva.getRecursos() != null
-                                    && !reserva.getRecursos().isEmpty()) {
-
-                                for (var recurso : reserva.getRecursos()) {
-                                    detalle.append("\n- ").append(recurso);
-                                }
-
-                            } else {
-                                detalle.append("\nNo hay recursos asociados.");
-                            }
-
-                            JOptionPane.showMessageDialog(
-                                    window,
-                                    detalle.toString(),
-                                    "Detalle de la reserva",
-                                    JOptionPane.INFORMATION_MESSAGE
-                            );
-                        }
-
-                        // DESCARTAR NOTIFICACIÓN
-                        if (columna == 2) {
-
-                            int opcion = JOptionPane.showConfirmDialog(
-                                    window,
-
-                                    "¿Desea descartar esta notificación?",
-
-                                    "Confirmar",
-
-                                    JOptionPane.YES_NO_OPTION
-                            );
-
-                            if (opcion == JOptionPane.YES_OPTION) {
-
-                                reservasNotificadas.remove(fila);
-
-                                modeloAlertas.removeRow(fila);
-                            }
-                        }
-                    }
-                }
-        );
-
-        panelAlertas.add(
-                new JScrollPane(tablaAlertas),
-                BorderLayout.CENTER
-        );
+        // Las notificaciones asíncronas del Backend llegan por el Proxy
+        ((ServiceProxy) Servicio.get())
+                .agregarListenerReservas(alertasController::notificar);
 
         // =================================
         // ADMINISTRADOR
@@ -445,7 +289,7 @@ public class Application {
         JPanel panelPrincipal = new JPanel(new BorderLayout());
 
         panelPrincipal.add(tabs, BorderLayout.CENTER);
-        panelPrincipal.add(panelAlertas, BorderLayout.EAST);
+        panelPrincipal.add(alertasView.getPanel(), BorderLayout.EAST);
 
         window.setContentPane(panelPrincipal);
 
