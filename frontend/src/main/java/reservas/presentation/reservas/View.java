@@ -3,8 +3,6 @@ package reservas.presentation.reservas;
 import reservas.presentation.Icons;
 
 import javax.swing.*;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.text.StyleContext;
 
 import reservas.logic.Categoria;
 
@@ -13,7 +11,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import com.github.lgooddatepicker.components.DatePicker;
 import java.time.LocalDate;
-import java.util.Locale;
 
 public class View implements PropertyChangeListener {
     private JLabel titulo;
@@ -42,6 +39,10 @@ public class View implements PropertyChangeListener {
     private Model model;
 
     public View() {
+
+        // Fuente del título en código (no en el .form) para que el proyecto
+        // compile igual con cualquier opción del GUI Designer de IntelliJ
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 18f));
 
         reservasTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
@@ -246,8 +247,6 @@ public class View implements PropertyChangeListener {
         panel = new JPanel();
         panel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(13, 5, new Insets(10, 10, 10, 10), -1, -1));
         titulo = new JLabel();
-        Font tituloFont = this.$$$getFont$$$(null, Font.BOLD, 18, titulo.getFont());
-        if (tituloFont != null) titulo.setFont(tituloFont);
         titulo.setText("Mis reservas");
         panel.add(titulo, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 5, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         actividad = new JLabel();
@@ -308,28 +307,6 @@ public class View implements PropertyChangeListener {
         imprimirButton = new JButton();
         imprimirButton.setText("Imprimir");
         panel.add(imprimirButton, new com.intellij.uiDesigner.core.GridConstraints(12, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        Font font = new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
-        boolean isMac = System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH).startsWith("mac");
-        Font fontWithFallback = isMac ? new Font(font.getFamily(), font.getStyle(), font.getSize()) : new StyleContext().getFont(font.getFamily(), font.getStyle(), font.getSize());
-        return fontWithFallback instanceof FontUIResource ? fontWithFallback : new FontUIResource(fontWithFallback);
     }
 
     /**

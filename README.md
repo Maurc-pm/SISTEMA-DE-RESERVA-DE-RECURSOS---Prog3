@@ -57,6 +57,9 @@ mvn -pl frontend exec:java -Dexec.mainClass=reservas.Application -Dexec.args="IP
 
 Desde IntelliJ también se pueden ejecutar directamente `ServerApplication` (con argumento `[puerto]`) y `Application` (con argumentos `[host] [puerto]`).
 
+### Nota sobre IntelliJ (GUI Designer)
+Los `View.java` ya incluyen el código que genera el GUI Designer, así que el proyecto funciona con cualquier opción de *Settings → Editor → GUI Designer → Generate GUI into*. Se recomienda **"Java source code on form save"**. Si alguna vez aparece un `ClassFormatError: Duplicate method "$$$..."`, elija esa opción y haga **Build → Rebuild Project**.
+
 ## 4. Pruebas
 
 ```sh
