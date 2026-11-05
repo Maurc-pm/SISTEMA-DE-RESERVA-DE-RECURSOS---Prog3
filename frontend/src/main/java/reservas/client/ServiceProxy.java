@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -141,4 +143,6 @@ public final class ServiceProxy implements IService {
         Reserva actualizado = (Reserva) llamar(Operacion.CANCELAR_RESERVA, reserva);
         if (actualizado != null) reserva.setEstado(actualizado.getEstado());
     }
+    @SuppressWarnings("unchecked") @Override public Map<String, Integer> estadisticaRecursosPorCategoria(LocalDate desde, LocalDate hasta) throws Exception { return (Map<String, Integer>) llamar(Operacion.ESTADISTICA_RECURSOS_POR_CATEGORIA, desde, hasta); }
+    @SuppressWarnings("unchecked") @Override public Map<String, Integer> estadisticaActividadesPorSemana(LocalDate desde, LocalDate hasta) throws Exception { return (Map<String, Integer>) llamar(Operacion.ESTADISTICA_ACTIVIDADES_POR_SEMANA, desde, hasta); }
 }

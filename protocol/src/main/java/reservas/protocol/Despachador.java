@@ -35,6 +35,8 @@ public final class Despachador {
                 case LISTAR_RESERVAS_FUNCIONARIO -> Response.ok(service.listarReservasFuncionario((Funcionario) a[0]));
                 case CREAR_RESERVA -> { service.crearReserva((Reserva) a[0], (java.util.List<Categoria>) a[1]); yield voidResult(a); }
                 case CANCELAR_RESERVA -> { service.cancelarReserva((Reserva) a[0]); yield voidResult(a); }
+                case ESTADISTICA_RECURSOS_POR_CATEGORIA -> Response.ok(service.estadisticaRecursosPorCategoria((java.time.LocalDate) a[0], (java.time.LocalDate) a[1]));
+                case ESTADISTICA_ACTIVIDADES_POR_SEMANA -> Response.ok(service.estadisticaActividadesPorSemana((java.time.LocalDate) a[0], (java.time.LocalDate) a[1]));
             };
         } catch (Exception e) {
             return Response.error(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());

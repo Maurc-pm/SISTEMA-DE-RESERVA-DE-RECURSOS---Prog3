@@ -2,7 +2,6 @@ package reservas.presentation.estadisticas;
 
 import reservas.presentation.Servicio;
 
-import reservas.logic.EstadisticaService;
 
 import javax.swing.*;
 
@@ -34,12 +33,10 @@ public class Controller {
 
     private final View view;
     private final Model model;
-    private final EstadisticaService estadisticaService;
 
     public Controller(View view, Model model) {
         this.view = view;
         this.model = model;
-        this.estadisticaService = new EstadisticaService();
 
         view.setController(this);
     }
@@ -49,10 +46,9 @@ public class Controller {
         try {
 
             model.setRecursos(
-                    estadisticaService.recursosPorCategoria(
+                    Servicio.get().estadisticaRecursosPorCategoria(
                             view.getDesdeRecursos(),
-                            view.getHastaRecursos(),
-                            Servicio.get().listarReservas()
+                            view.getHastaRecursos()
                     )
             );
 
@@ -79,10 +75,9 @@ public class Controller {
         try {
 
             model.setActividades(
-                    estadisticaService.actividadesPorSemana(
+                    Servicio.get().estadisticaActividadesPorSemana(
                             view.getDesdeRecursos(),
-                            view.getHastaRecursos(),
-                            Servicio.get().listarReservas()
+                            view.getHastaRecursos()
                     )
             );
 
@@ -117,10 +112,9 @@ public class Controller {
             }
 
             var datos =
-                    estadisticaService.recursosPorCategoria(
+                    Servicio.get().estadisticaRecursosPorCategoria(
                             desde,
-                            hasta,
-                            Servicio.get().listarReservas()
+                            hasta
                     );
 
             String dest = "estadisticas_recursos.pdf";
@@ -268,10 +262,9 @@ public class Controller {
             }
 
             var datos =
-                    estadisticaService.actividadesPorSemana(
+                    Servicio.get().estadisticaActividadesPorSemana(
                             desde,
-                            hasta,
-                            Servicio.get().listarReservas()
+                            hasta
                     );
 
             String dest = "estadisticas_actividades.pdf";

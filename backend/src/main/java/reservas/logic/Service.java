@@ -14,6 +14,7 @@ import reservas.protocol.IService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -24,6 +25,7 @@ public class Service implements IService {
     private final Data data;
     private final Persistencia persistencia;
     private ReservaExtractorService reservaExtractorService;
+    private final EstadisticaService estadisticas = new EstadisticaService();
 
     private Service(Persistencia persistencia) {
 
@@ -32,17 +34,8 @@ public class Service implements IService {
             this.persistencia = persistencia;
             Data dataCargada = persistencia.cargar();
 
-            if (dataCargada != null) {
-
-                // Ya existe reservas.xml
-                data = dataCargada;
-
-            } else {
-
-                // Primera ejecución
-                data = new Data();
-
-            }
+            // Carga inicial desde MySQL; los cambios se escriben en la BD al momento
+            data = dataCargada != null ? dataCargada : new Data();
 
         } catch (Exception e) {
 
@@ -937,9 +930,24 @@ public class Service implements IService {
         if (!esFutura) {throw new Exception("Solo se pueden cancelar reservas futuras");
         }
 
-        if (!existente.estaActiva()) throw new Exception("La reserva ya estÃ¡ cancelada");
         persistencia.actualizarEstadoReserva(existente.getId(), Reserva.CANCELADA);
         existente.setEstado(Reserva.CANCELADA);
         reserva.setEstado(Reserva.CANCELADA);
+    }
+
+    @Override
+    public synchronized Map<String, Integer> estadisticaRecursosPorCategoria(
+            LocalDate desde,
+            LocalDate hasta
+    ) throws Exception {
+        return estadisticas.recursosPorCategoria(desde, hasta, data.getReservas());
+    }
+
+    @Override
+    public synchronized Map<String, Integer> estadisticaActividadesPorSemana(
+            LocalDate desde,
+            LocalDate hasta
+    ) throws Exception {
+        return estadisticas.actividadesPorSemana(desde, hasta, data.getReservas());
     }
 }

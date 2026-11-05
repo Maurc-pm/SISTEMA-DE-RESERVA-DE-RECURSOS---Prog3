@@ -2,7 +2,9 @@ package reservas.protocol;
 
 import reservas.ai.ReservaExtraccion;
 import reservas.logic.*;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface IService {
     Usuario login(String id, String clave) throws Exception;
@@ -31,4 +33,6 @@ public interface IService {
     List<Reserva> listarReservasFuncionario(Funcionario funcionario) throws Exception;
     void crearReserva(Reserva reserva, List<Categoria> categorias) throws Exception;
     void cancelarReserva(Reserva reserva) throws Exception;
+    Map<String, Integer> estadisticaRecursosPorCategoria(LocalDate desde, LocalDate hasta) throws Exception;
+    Map<String, Integer> estadisticaActividadesPorSemana(LocalDate desde, LocalDate hasta) throws Exception;
 }
